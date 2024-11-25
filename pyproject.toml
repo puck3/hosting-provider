@@ -1,0 +1,19 @@
+[tool.poetry]
+name = "hosting-provider"
+version = "0.1.0"
+description = ""
+authors = ["puck3 <shipilovk04@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.12"
+fastapi = {extras = ["standard"], version = "^0.115.5"}
+asyncpg = "^0.30.0"
+passlib = "^1.7.4"
+uvicorn = "^0.32.1"
+python-dotenv = "^1.0.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
