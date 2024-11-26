@@ -2,7 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel
 
 from src.schemas.plan import BillingPeriod
-from src.core.constants import default_str, country_code_str
+from src.schemas.base import default_str, country_code_str
 from src.schemas.server import ServerResponse
 from src.schemas.user import UserResponse
 

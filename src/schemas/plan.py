@@ -1,6 +1,6 @@
 from pydantic import BaseModel, PositiveFloat
 
-from src.core.constants import default_str, BillingPeriod
+from src.schemas.base import default_str, BillingPeriod
 from src.schemas.hardware_config import HardwareConfigResponse
 
 

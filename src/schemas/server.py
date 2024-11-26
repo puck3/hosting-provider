@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from src.core.constants import default_str, country_code_str, Status
+from src.schemas.base import default_str, country_code_str, Status
 from src.schemas.hardware_config import HardwareConfigResponse
 
 

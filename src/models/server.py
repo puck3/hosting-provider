@@ -1,4 +1,4 @@
-from src.core.constants import default_str, Status
+from src.schemas.base import default_str, Status
 from src.schemas.hardware_config import HardwareConfigResponse
 from src.schemas.server import Datacenter
 

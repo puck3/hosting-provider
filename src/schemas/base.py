@@ -4,12 +4,10 @@ from enum import Enum
 from annotated_types import MaxLen
 from pydantic import EmailStr
 
-# Constants
 str_len = 50
 long_str_len = 255
 country_len = 2
 
-# Types
 default_str = Annotated[str, MaxLen(str_len)]
 long_str = Annotated[str, MaxLen(long_str_len)]
 email_str = Annotated[EmailStr, MaxLen(long_str_len)]

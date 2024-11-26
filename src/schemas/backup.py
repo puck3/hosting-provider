@@ -1,7 +1,7 @@
 from datetime import datetime
 from pydantic import BaseModel
 
-from src.core.constants import long_str
+from src.schemas.base import long_str
 from src.schemas.user import UserResponse
 
 

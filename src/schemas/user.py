@@ -1,7 +1,7 @@
 from datetime import date
 from pydantic import BaseModel
 
-from src.core.constants import default_str, email_str, Role
+from src.schemas.base import default_str, email_str, Role
 
 
 class Personal(BaseModel):

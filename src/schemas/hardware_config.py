@@ -1,6 +1,6 @@
 from pydantic import BaseModel, PositiveFloat, PositiveInt
 
-from src.core.constants import default_str
+from src.schemas.base import default_str
 
 
 class CPU(BaseModel):
