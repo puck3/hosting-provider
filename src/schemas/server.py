@@ -1,15 +1,7 @@
-from enum import Enum
 from pydantic import BaseModel
 
-from src.core.constants import default_str, country_code_str
+from src.core.constants import default_str, country_code_str, Status
 from src.schemas.hardware_config import HardwareConfigResponse
-
-
-class Status(str, Enum):
-    active = "active"
-    inactive = "inactive"
-    maintenance = "maintenance"
-    decommissioned = "decommissioned"
 
 
 class Datacenter(BaseModel):

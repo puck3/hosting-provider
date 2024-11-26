@@ -1,13 +1,7 @@
 from datetime import date
-from enum import Enum
 from pydantic import BaseModel
 
-from src.core.constants import default_str, email_str
-
-
-class Role(str, Enum):
-    user = "user"
-    admin = "admin"
+from src.core.constants import default_str, email_str, Role
 
 
 class Personal(BaseModel):
@@ -19,15 +13,14 @@ class Personal(BaseModel):
 class UserBase(BaseModel):
     email: email_str
     login: default_str
+    personal: Personal | None
 
 
 class UserRequest(UserBase):
     password: default_str
-    personal: Personal | None
 
 
 class UserResponse(BaseModel):
     user_id: int | None
     hashed_password: str
     role: Role
-    personal: Personal | None

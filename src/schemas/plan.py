@@ -1,14 +1,7 @@
-from enum import Enum
 from pydantic import BaseModel, PositiveFloat
 
-from src.core.constants import default_str
+from src.core.constants import default_str, BillingPeriod
 from src.schemas.hardware_config import HardwareConfigResponse
-
-
-class BillingPeriod(str, Enum):
-    hourly = "hourly"
-    daily = "daily"
-    monthly = "monthly"
 
 
 class PlanBase(BaseModel):
