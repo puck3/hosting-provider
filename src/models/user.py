@@ -1,45 +1,64 @@
-from src.schemas.user import default_str, email_str, Role, Personal
-from src.core.config import password_context
+from datetime import date
+from enum import Enum
+
+from src.models.base import BaseModel
 
 
-class User:
+class Role(str, Enum):
+    user = "user"
+    admin = "admin"
+
+
+class User(BaseModel):
     def __init__(
         self,
-        email: email_str,
-        login: default_str,
-        password: str,
-        hashed: bool = False,
-        role: Role = Role.user,
-        personal: Personal | None = None,
-        user_id: int | None = None,
+        user_id: int,
+        email: str,
+        login: str,
+        password_hash: str,
+        role: Role,
+        first_name: str | None,
+        last_name: str | None,
+        birthdate: date | None,
     ) -> None:
-        self.email = email
-        self.login = login
-        self.hashed_password = password if hashed else password_context.hash(password)
+        self._set_id(user_id)
+        self._email = email
+        self._login = login
+        self._password_hash = password_hash
+        self._role = role
+        self._first_name = first_name
+        self._last_name = last_name
+        self._birthdate = birthdate
+
+    def set_email(self, email: str) -> None:
+        self._email = email
+
+    def set_password_hash(self, password_hash: str) -> None:
+        self._password_hash = password_hash
+
+    def get_password_hash(self) -> str:
+        return self._password_hash
+
+    def set_login(self, login: str) -> None:
+        self._login = login
+
+    def set_personal(
+        self,
+        first_name: str | None = None,
+        last_name: str | None = None,
+        birthdate: date | None = None,
+    ) -> None:
+        if first_name is not None:
+            self._first_name = first_name
+
+        if last_name is not None:
+            self._last_name = last_name
+
+        if birthdate is not None:
+            self._birthdate = birthdate
+
+    def set_role(self, role: Role) -> None:
         self.role = role
-        self.personal = personal
-        self.user_id = user_id
 
-    def check_password(self, password: str) -> bool:
-        return password_context.verify(password, self.hashed_password)
-
-    def set_password(self, old_password: str, new_password: str):
-        if self.check_password(old_password):
-            self.hashed_password = password_context.hash(new_password)
-            return True
-        return False
-
-    def set_email(self, password: str, new_email: email_str) -> bool:
-        if self.check_password(password):
-            self._email = new_email
-            return True
-        return False
-
-    def set_login(self, password: str, new_login: default_str) -> bool:
-        if self.check_password(password):
-            self._login = new_login
-            return True
-        return False
-
-    def set_personal(self, personal: Personal) -> None:
-        self.personal = personal
+    def is_admin(self):
+        return self.role == Role.admin
