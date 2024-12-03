@@ -1,6 +1,8 @@
 from pydantic import BaseModel
 from enum import Enum
 
+from src.models.hardware import Hardware
+
 
 class Status(str, Enum):
     active = "active"
@@ -17,6 +19,6 @@ class Datacenter(BaseModel):
 class Server(BaseModel):
     server_id: int
     datacenter: Datacenter
-    hardware_id: int
+    hardware: Hardware
     status: Status
     operating_system: str

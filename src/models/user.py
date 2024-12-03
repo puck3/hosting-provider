@@ -17,3 +17,6 @@ class User(BaseModel):
     first_name: str | None
     last_name: str | None
     birthdate: date | None
+
+    def is_admin(self) -> bool:
+        return self.role == Role.admin

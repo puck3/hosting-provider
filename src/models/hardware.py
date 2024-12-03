@@ -21,8 +21,8 @@ class Hardware(BaseModel):
     hardware_id: int
     cpu: CPU
     cpus_count: int
+    gpu: GPU | None
+    gpus_count: int
     storage_gb: int
     ram_gb: int
     bandwidth_mbps: int
-    gpu: GPU | None = None
-    gpus_count: int = 0
