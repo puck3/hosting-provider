@@ -10,35 +10,35 @@ class RentalService:
         self._servers = repositories.get_server_repository()
         self._plans = repositories.get_plan_repository()
 
-    async def create_rental(self, user_id: int, plan_id: int, country: str) -> Rental:
-        if (user := await self._users.get_user_by_id(user_id)) is None:
+    def create_rental(self, user_id: int, plan_id: int, country: str) -> Rental:
+        if (user := self._users.get_user_by_id(user_id)) is None:
             raise ValueError("User not found.")
 
-        if (plan := await self._plans.get_plan_by_id(plan_id)) is None:
+        if (plan := self._plans.get_plan_by_id(plan_id)) is None:
             raise ValueError("Plan not found.")
 
-        server_id = await self._servers.reserve_server(
-            plan.hardware.hardware_id, country
-        )
+        server_id = self._servers.reserve_server(plan.hardware.hardware_id, country)
 
-        if (server := await self._servers.get_server_by_id(server_id)) is None:
+        if (server := self._servers.get_server_by_id(server_id)) is None:
             raise ValueError("Server not found.")
 
-        rental = await self._rentals.create_rental(user, server, plan)
+        rental = self._rentals.create_rental(
+            user, server, plan.price, plan.billing_period
+        )
         return rental
 
-    async def get_rentals(self) -> list[Rental]:
-        return await self._rentals.get_rentals()
+    def get_rentals(self) -> list[Rental]:
+        return self._rentals.get_rentals()
 
-    async def get_rentals_by_user(self, user_id: int) -> list[Rental]:
-        return await self._rentals.get_rentals_by_user(user_id)
+    def get_rentals_by_user(self, user_id: int) -> list[Rental]:
+        return self._rentals.get_rentals_by_user(user_id)
 
-    async def extend_rental(self, rental_id: int):
-        if (rental := await self._rentals.get_rental_by_id(rental_id)) is None:
+    def extend_rental(self, rental_id: int):
+        if (rental := self._rentals.get_rental_by_id(rental_id)) is None:
             raise ValueError("Rental not found.")
 
         if rental.end_at < datetime.now():
             raise ValueError("Rental already ended.")
 
         rental.extend()
-        await self._rentals.save_rental(rental)
+        self._rentals.save_rental(rental)
