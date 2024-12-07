@@ -1,4 +1,4 @@
-from asyncpg import Record
+from psycopg2.extras import RealDictCursor
 from src.models.hardware import Hardware
 from src.models.plan import BillingPeriod, Plan
 from src.services.repositories_abc import PlanRepositoryABC
@@ -7,28 +7,31 @@ from src.db.hardware_repository import HardwareRepository
 
 
 class PlanRepository(BaseRepository, PlanRepositoryABC):
-    async def create_plan(
+    def create_plan(
         self,
         hardware: Hardware,
         price: float,
         billing_period: BillingPeriod,
         plan_name: str,
-        plan_description: str,
     ) -> Plan:
         query = """
             INSERT INTO plans (
-                hardware_id, price, billing_period, plan_name, plan_description
+                hardware_id, price, billing_period, plan_name 
             ) 
             VALUES (
-                $1, $2, $3, $4, $5
+                %s, %s, %s, %s
             )
             RETURNING plan_id;
         """
         hardware_id = hardware.hardware_id
-        async with self._get_connection() as conn:
-            plan_id = await conn.fetchval(
-                query, hardware_id, price, billing_period, plan_name, plan_description
-            )
+        with self._get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    query,
+                    (hardware_id, price, billing_period, plan_name),
+                )
+                plan_id = cursor.fetchone()[0]
+                conn.commit()
 
         plan = Plan(
             plan_id=plan_id,
@@ -36,78 +39,169 @@ class PlanRepository(BaseRepository, PlanRepositoryABC):
             price=price,
             billing_period=billing_period,
             plan_name=plan_name,
-            plan_description=plan_description,
         )
         return plan
 
-    async def delete_plan(self, plan_id: int) -> None:
+    def delete_plan(self, plan_id: int) -> None:
         query = """
             DELETE FROM plans
-            WHERE plan_id = $1;
+            WHERE plan_id = %s;
         """
-        async with self._get_connection() as conn:
-            await conn.execute(query, plan_id)
+        with self._get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (plan_id,))
+            conn.commit()
 
     @staticmethod
-    def get_plan_from_record(record: Record | None) -> Plan | None:
+    def get_plan_from_record(record: dict | None) -> Plan | None:
         if record is None:
             return None
         else:
             plan_data = {
                 key: value
                 for key, value in record.items()
-                if key in Plan.model_fields.items()
+                if key in Plan.model_fields.keys()
             }
             plan_data["hardware"] = HardwareRepository.get_hardware_from_record(record)
             return Plan(**plan_data)
 
-    async def get_plan_by_id(self, plan_id: int) -> Plan | None:
+    def get_plan_by_id(self, plan_id: int) -> Plan | None:
         query = """
-            SELECT *
+            SELECT
+                p.plan_id,
+                p.plan_name,
+                p.price,
+                p.billing_period,
+                h.hardware_id,
+                h.cpu_id,
+                h.cpu_name,
+                h.cpu_vendor,
+                h.cores,
+                h.frequency,
+                h.cpus_count,
+                h.gpu_id,
+                h.gpu_name,
+                h.gpu_vendor,
+                h.vram_type,
+                h.vram_gb,
+                h.gpus_count,
+                h.storage_tb,
+                h.ram_gb,
+                h.bandwidth_gbps
             FROM
-                plans 
-                LEFT JOIN extended_hardwares using(hardware_id)
+                plans p
+                LEFT JOIN extended_hardwares h using(hardware_id)
             WHERE
-                plan_id = $1
+                p.plan_id = %s;
         """
-        async with self._get_connection() as conn:
-            result = await conn.fetchrow(query, plan_id)
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(query, (plan_id,))
+                result = cursor.fetchone()
 
         return self.get_plan_from_record(result)
 
-    async def get_plan_by_name(self, plan_name: str) -> Plan | None:
+    def get_plan_by_name(self, plan_name: str) -> Plan | None:
         query = """
-            SELECT *
+            SELECT
+                p.plan_id,
+                p.plan_name,
+                p.price,
+                p.billing_period,
+                h.hardware_id,
+                h.cpu_id,
+                h.cpu_name,
+                h.cpu_vendor,
+                h.cores,
+                h.frequency,
+                h.cpus_count,
+                h.gpu_id,
+                h.gpu_name,
+                h.gpu_vendor,
+                h.vram_type,
+                h.vram_gb,
+                h.gpus_count,
+                h.storage_tb,
+                h.ram_gb,
+                h.bandwidth_gbps
             FROM
-                plans
-                LEFT JOIN extended_hardwares using(hardware_id)
+                plans p
+                LEFT JOIN extended_hardwares h using(hardware_id)
             WHERE
-                plan_name = $1
+                p.plan_name = %s;
         """
-        async with self._get_connection() as conn:
-            result = await conn.fetchrow(query, plan_name)
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(query, (plan_name,))
+                result = cursor.fetchone()
 
         return self.get_plan_from_record(result)
 
-    async def get_plans(self) -> list[Plan]:
+    def get_plans(self) -> list[Plan]:
         query = """
-            SELECT *
+            SELECT
+                p.plan_id,
+                p.plan_name,
+                p.price,
+                p.billing_period,
+                h.hardware_id,
+                h.cpu_id,
+                h.cpu_name,
+                h.cpu_vendor,
+                h.cores,
+                h.frequency,
+                h.cpus_count,
+                h.gpu_id,
+                h.gpu_name,
+                h.gpu_vendor,
+                h.vram_type,
+                h.vram_gb,
+                h.gpus_count,
+                h.storage_tb,
+                h.ram_gb,
+                h.bandwidth_gbps
             FROM
-                plans
-                LEFT JOIN extended_hardwares using(hardware_id)
+                plans p
+                LEFT JOIN extended_hardwares h using(hardware_id)
+            ORDER BY p.plan_id;
         """
-        async with self._get_connection() as conn:
-            result = await conn.fetch(query)
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(query)
+                result = cursor.fetchall()
 
         return [self.get_plan_from_record(record) for record in result]
 
-    async def get_available_plans_by_country(self, country: str) -> list[Plan]:
+    def get_available_plans_by_country(self, country: str) -> list[Plan]:
         query = """
-            SELECT *
+            SELECT
+                plan_id,
+                plan_name,
+                price,
+                billing_period,
+                hardware_id,
+                cpu_id,
+                cpu_name,
+                cpu_vendor,
+                cores,
+                frequency,
+                cpus_count,
+                gpu_id,
+                gpu_name,
+                gpu_vendor,
+                vram_type,
+                vram_gb,
+                gpus_count,
+                storage_tb,
+                ram_gb,
+                bandwidth_gbps
             FROM available_plans_with_countries
-            WHERE country = $1;
+            WHERE country = %s
+            ORDER BY plan_id
         """
-        async with self._get_connection() as conn:
-            result = await conn.fetch(query, country)
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(query, (country,))
+                result = cursor.fetchall()
 
         return [self.get_plan_from_record(record) for record in result]

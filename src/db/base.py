@@ -1,15 +1,20 @@
-from contextlib import asynccontextmanager
-from typing import AsyncGenerator
-from asyncpg import Connection, Pool
+from contextlib import contextmanager
+from typing import Generator
+from psycopg2.pool import SimpleConnectionPool
+from psycopg2.extensions import connection
 
 
 class BaseRepository:
-    def __init__(self, pool: Pool) -> None:
+    def __init__(self, pool: SimpleConnectionPool) -> None:
         if pool is None:
             raise RuntimeError("Connection pool is not initialized.")
+
         self.__pool = pool
 
-    @asynccontextmanager
-    async def _get_connection(self) -> AsyncGenerator[Connection, None]:
-        async with self.__pool.acquire() as conn:
+    @contextmanager
+    def _get_connection(self) -> Generator[connection, None, None]:
+        conn = self.__pool.getconn()
+        try:
             yield conn
+        finally:
+            self.__pool.putconn(conn)

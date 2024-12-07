@@ -1,4 +1,4 @@
-from asyncpg import Record
+from psycopg2.extras import RealDictCursor
 from src.db.base import BaseRepository
 from src.db.hardware_repository import HardwareRepository
 from src.models.hardware import Hardware
@@ -7,7 +7,7 @@ from src.services.repositories_abc import ServerRepositoryABC
 
 
 class ServerRepository(BaseRepository, ServerRepositoryABC):
-    async def create_datacenter(
+    def create_datacenter(
         self, datacenter_name: str, country: str, city: str
     ) -> Datacenter:
         query = """
@@ -15,12 +15,15 @@ class ServerRepository(BaseRepository, ServerRepositoryABC):
                 datacenter_name, country, city 
             )
             VALUES (
-                $1, $2, $3
+                %s, %s, %s
             )
             RETURNING datacenter_id;
         """
-        async with self._get_connection() as conn:
-            datacenter_id = await conn.fetchval(query, datacenter_name, country, city)
+        with self._get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (datacenter_name, country, city))
+                datacenter_id = cursor.fetchone()[0]
+            conn.commit()
 
         datacenter = Datacenter(
             datacenter_id=datacenter_id,
@@ -30,54 +33,75 @@ class ServerRepository(BaseRepository, ServerRepositoryABC):
         )
         return datacenter
 
-    async def delete_datacenter(self, datacenter_id: int) -> None:
+    def delete_datacenter(self, datacenter_id: int) -> None:
         query = """
             DELETE FROM datacenters
-            WHERE datacenter_id = $1;
+            WHERE datacenter_id = %s;
         """
-        async with self._get_connection() as conn:
-            await conn.execute(query, datacenter_id)
+        with self._get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (datacenter_id,))
+            conn.commit()
 
     @staticmethod
-    def _get_datacenter_from_record(record: Record | None) -> Datacenter | None:
+    def _get_datacenter_from_record(record: dict | None) -> Datacenter | None:
         if record is None:
             return None
         else:
             return Datacenter(**record)
 
-    async def get_datacenter_by_id(self, datacenter_id: int) -> Datacenter | None:
+    def get_datacenter_by_id(self, datacenter_id: int) -> Datacenter | None:
         query = """
-            SELECT *
+            SELECT
+                datacenter_id,
+                datacenter_name,
+                country,
+                city
             FROM datacenters
-            WHERE datacenter_id = $1;
+            WHERE datacenter_id = %s;
         """
-        async with self._get_connection() as conn:
-            result = await conn.fetchrow(query, datacenter_id)
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(query, (datacenter_id,))
+                result = cursor.fetchone()
 
         return self._get_datacenter_from_record(result)
 
-    async def get_datacenter_by_name(self, datacenter_name: str) -> Datacenter | None:
+    def get_datacenter_by_name(self, datacenter_name: str) -> Datacenter | None:
         query = """
-            SELECT *
+            SELECT
+                datacenter_id,
+                datacenter_name,
+                country,
+                city
             FROM datacenters
-            WHERE datacenter_name = $1; 
+            WHERE datacenter_name = %s; 
         """
-        async with self._get_connection() as conn:
-            result = await conn.fetchrow(query, datacenter_name)
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(query, (datacenter_name,))
+                result = cursor.fetchone()
 
         return self._get_datacenter_from_record(result)
 
-    async def get_datacenters(self) -> list[Datacenter]:
+    def get_datacenters(self) -> list[Datacenter]:
         query = """
-            SELECT *
-            FROM datacenters;
+            SELECT
+                datacenter_id,
+                datacenter_name,
+                country,
+                city
+            FROM datacenters
+            ORDER BY datacenter_id;
         """
-        async with self._get_connection() as conn:
-            result = await conn.fetch(query)
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(query)
+                result = cursor.fetchall()
 
         return [self._get_datacenter_from_record(record) for record in result]
 
-    async def create_server(
+    def create_server(
         self,
         datacenter: Datacenter,
         hardware: Hardware,
@@ -89,16 +113,19 @@ class ServerRepository(BaseRepository, ServerRepositoryABC):
                 datacenter_id, hardware_id, status, operating_system
             )
             VALUES (
-                $1, $2, $3, $4
+                %s, %s, %s, %s
             )
             RETURNING server_id;
         """
         datacenter_id = datacenter.datacenter_id
         hardware_id = hardware.hardware_id
-        async with self._get_connection() as conn:
-            server_id = await conn.fetchval(
-                query, datacenter_id, hardware_id, status, operating_system
-            )
+        with self._get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    query, (datacenter_id, hardware_id, status, operating_system)
+                )
+                server_id = cursor.fetchone()[0]
+                conn.commit()
 
         server = Server(
             server_id=server_id,
@@ -109,33 +136,40 @@ class ServerRepository(BaseRepository, ServerRepositoryABC):
         )
         return server
 
-    async def save_server(self, server: Server) -> None:
+    def save_server(self, server: Server) -> None:
         query = """
             UPDATE servers
             SET
-                datacenter_id = $1, hardware_id = $2, status = $3, operating_system = $4
+                datacenter_id = %s, hardware_id = %s, status = %s, operating_system = %s
             WHERE
-                server_id = $5;
+                server_id = %s;
         """
-        async with self._get_connection() as conn:
-            await conn.execute(
-                query,
-                server.datacenter.datacenter_id,
-                server.hardware.hardware_id,
-                server.status,
-                server.operating_system,
-            )
+        with self._get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    query,
+                    (
+                        server.datacenter.datacenter_id,
+                        server.hardware.hardware_id,
+                        server.status,
+                        server.operating_system,
+                        server.server_id,
+                    ),
+                )
+            conn.commit()
 
-    async def delete_server(self, server_id: int) -> None:
+    def delete_server(self, server_id: int) -> None:
         query = """
             DELETE FROM servers
-            WHERE server_id = $1;
+            WHERE server_id = %s;
         """
-        async with self._get_connection() as conn:
-            await conn.execute(query, server_id)
+        with self._get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (server_id,))
+            conn.commit()
 
     @staticmethod
-    def get_server_from_record(record: Record | None) -> Server | None:
+    def get_server_from_record(record: dict | None) -> Server | None:
         if record is None:
             return None
         else:
@@ -155,37 +189,86 @@ class ServerRepository(BaseRepository, ServerRepositoryABC):
             )
             return Server(**server_data)
 
-    async def get_server_by_id(self, server_id: int) -> Server | None:
+    def get_server_by_id(self, server_id: int) -> Server | None:
         query = """
             SELECT 
-                *
+                s.server_id,
+                s.status,
+                s.operating_system,
+                d.datacenter_id,
+                d.datacenter_name,
+                d.country,
+                d.city,
+                h.hardware_id,
+                h.cpu_id,
+                h.cpu_name,
+                h.cpu_vendor,
+                h.cores,
+                h.frequency,
+                h.cpus_count,
+                h.gpu_id,
+                h.gpu_name,
+                h.gpu_vendor,
+                h.vram_type,
+                h.vram_gb,
+                h.gpus_count,
+                h.storage_tb,
+                h.ram_gb,
+                h.bandwidth_gbps
             FROM 
-                servers
-                LEFT JOIN datacenters USING (datacenter_id)
-                LEFT JOIN extended_hardwares USING (hardware_id)
+                servers s
+                LEFT JOIN datacenters d USING (datacenter_id)
+                LEFT JOIN extended_hardwares h USING (hardware_id)
             WHERE 
-                server_id = $1;
+                s.server_id = %s;
         """
-        async with self._get_connection() as conn:
-            result = await conn.fetchrow(query, server_id)
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(query, (server_id,))
+                result = cursor.fetchone()
 
         return self.get_server_from_record(result)
 
-    async def get_servers(self):
+    def get_servers(self):
         query = """
             SELECT 
-                *
+                s.server_id,
+                s.status,
+                s.operating_system,
+                d.datacenter_id,
+                d.datacenter_name,
+                d.country,
+                d.city,
+                h.hardware_id,
+                h.cpu_id,
+                h.cpu_name,
+                h.cpu_vendor,
+                h.cores,
+                h.frequency,
+                h.cpus_count,
+                h.gpu_id,
+                h.gpu_name,
+                h.gpu_vendor,
+                h.vram_type,
+                h.vram_gb,
+                h.gpus_count,
+                h.storage_tb,
+                h.ram_gb,
+                h.bandwidth_gbps
             FROM
-                servers
-                LEFT JOIN datacenters USING (datacenter_id)
-                LEFT JOIN extended_hardwares USING (hardware_id)
+                servers s
+                LEFT JOIN datacenters d USING (datacenter_id)
+                LEFT JOIN extended_hardwares h USING (hardware_id)
+            ORDER BY s.server_id;
         """
-        async with self._get_connection() as conn:
-            result = await conn.fetch(query)
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(query)
+                result = cursor.fetchall()
 
-        return [self.get_server_From_record(record) for record in result]
+        return [self.get_server_from_record(record) for record in result]
 
-    async def reserve_server(self, hardware_id: int, country: str) -> int:
+    def reserve_server(self, hardware_id: int, country: str) -> int:
         query = """
             WITH updated_server AS (
                 SELECT 
@@ -194,18 +277,61 @@ class ServerRepository(BaseRepository, ServerRepositoryABC):
                     servers
                     JOIN datacenters USING (datacenter_id)
                 WHERE
-                    hardware_id = $1 
-                    AND country = $2
-                    AND status = 'inactive'
+                    hardware_id = %s 
+                    AND country = %s
+                    AND status = %s
                 LIMIT 1
-                FOR UPDATE SKIP LOCKED
             )
             UPDATE servers
-            SET status = 'active'
+            SET status = %s
             WHERE server_id = (SELECT server_id FROM updated_server)
             RETURNING server_id;
         """
-        async with self._get_connection() as conn:
-            reserved_server_id = await conn.fetchval(query, hardware_id, country)
+        with self._get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    query, (hardware_id, country, Status.available, Status.rented)
+                )
+                reserved_server_id = cursor.fetchone()[0]
+            conn.commit()
 
         return reserved_server_id
+
+    def release_servers(self) -> None:
+        query = """
+            WITH unused_servers AS (
+                SELECT server_id
+                FROM servers
+                WHERE
+                    status = %s
+                    AND server_id NOT IN (
+                        SELECT server_id
+                        FROM rentals
+                        WHERE 
+                            end_at > CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Moscow'
+                    )
+            )
+            UPDATE servers
+            SET status = %s
+            WHERE server_id in (SELECT server_id FROM unused_servers);
+        """
+        with self._get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (Status.rented, Status.available))
+            conn.commit()
+
+    def fix_servers_status(self) -> None:
+        query = """
+            UPDATE servers
+            SET status = %s
+            WHERE status != %s 
+            AND server_id in (
+                SELECT server_id 
+                FROM rentals 
+                WHERE end_at > CURRENT_TIMESTAMP AT TIME ZONE 'Europe/Moscow'
+            )
+        """
+        with self._get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (Status.rented, Status.rented))
+            conn.commit()

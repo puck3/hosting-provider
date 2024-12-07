@@ -1,5 +1,4 @@
-from re import I
-from asyncpg import Record
+from psycopg2.extras import RealDictCursor
 from src.models.hardware import CPU, GPU, Hardware
 from src.services.repositories_abc import HardwareRepositoryABC
 from src.db.base import BaseRepository
@@ -7,21 +6,21 @@ from src.db.base import BaseRepository
 
 class HardwareRepository(BaseRepository, HardwareRepositoryABC):
     @staticmethod
-    def _get_cpu_from_record(record: Record | None) -> CPU | None:
+    def _get_cpu_from_record(record: dict | None) -> CPU | None:
         if record is None:
             return None
         else:
             return CPU(**record)
 
     @staticmethod
-    def _get_gpu_from_record(record: Record | None) -> GPU | None:
+    def _get_gpu_from_record(record: dict | None) -> GPU | None:
         if record is None:
             return None
         else:
             return GPU(**record)
 
     @staticmethod
-    def get_hardware_from_record(record: Record | None) -> Hardware | None:
+    def get_hardware_from_record(record: dict | None) -> Hardware | None:
         if record is None:
             return None
         else:
@@ -44,57 +43,80 @@ class HardwareRepository(BaseRepository, HardwareRepositoryABC):
                 if key in GPU.model_fields.keys()
             }
             hardware_data["gpu"] = (
-                GPU(**gpu_data) if gpu_data["gpu_id"] is not None else None
+                GPU(**gpu_data) if gpu_data.get("gpu_id") is not None else None
             )
 
             return Hardware(**hardware_data)
 
-    async def get_cpu_by_id(self, cpu_id: int) -> CPU | None:
+    def get_cpu_by_id(self, cpu_id: int) -> CPU | None:
         query = """
-            SELECT *
+            SELECT
+                cpu_id,
+                cpu_name,
+                cpu_vendor,
+                cores,
+                frequency
             FROM cpus
-            WHERE cpu_id = $1;
+            WHERE cpu_id = %s;
         """
-        async with self._get_connection() as conn:
-            result = await conn.fetchrow(query, cpu_id)
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(query, (cpu_id,))
+                result = cursor.fetchone()
 
         return self._get_cpu_from_record(result)
 
-    async def get_cpu_by_name(self, cpu_name: str) -> CPU | None:
+    def get_cpu_by_name(self, cpu_name: str) -> CPU | None:
         query = """
-            SELECT *
+            SELECT
+                cpu_id,
+                cpu_name,
+                cpu_vendor,
+                cores,
+                frequency
             FROM cpus
-            WHERE cpu_id = $1;
+            WHERE cpu_name = %s;
         """
-        async with self._get_connection() as conn:
-            result = await conn.fetchrow(query, cpu_name)
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(query, (cpu_name,))
+                result = cursor.fetchone()
 
         return self._get_cpu_from_record(result)
 
-    async def get_cpus(self) -> list[CPU]:
+    def get_cpus(self) -> list[CPU]:
         query = """
-            SELECT *
-            FROM cpus; 
+            SELECT
+                cpu_id,
+                cpu_name,
+                cpu_vendor,
+                cores,
+                frequency
+            FROM cpus
+            ORDER BY cpu_id;
         """
-        async with self._get_connection() as conn:
-            result = await conn.fetch(query)
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(query)
+                result = cursor.fetchall()
 
         return [self._get_cpu_from_record(record) for record in result]
 
-    async def create_cpu(
+    def create_cpu(
         self, cpu_name: str, cpu_vendor: str, cores: int, frequency: float
     ) -> CPU:
         query = """
             INSERT INTO cpus (
                 cpu_name, cpu_vendor, cores, frequency
             )
-            VALUES (
-                $1, $2, $3, $4
-            )
+            VALUES (%s, %s, %s, %s)
             RETURNING cpu_id;
         """
-        async with self._get_connection() as conn:
-            cpu_id = await conn.fetchval(query, cpu_name, cpu_vendor, cores, frequency)
+        with self._get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (cpu_name, cpu_vendor, cores, frequency))
+                cpu_id = cursor.fetchone()[0]
+            conn.commit()
 
         cpu = CPU(
             cpu_id=cpu_id,
@@ -105,62 +127,85 @@ class HardwareRepository(BaseRepository, HardwareRepositoryABC):
         )
         return cpu
 
-    async def delete_cpu(self, cpu_id: int) -> None:
+    def delete_cpu(self, cpu_id: int) -> None:
         query = """
             DELETE FROM cpus
-            WHERE cpu_id = $1; 
+            WHERE cpu_id = %s; 
         """
-        async with self._get_connection() as conn:
-            conn.execute(query, cpu_id)
+        with self._get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (cpu_id,))
+            conn.commit()
 
-    async def get_gpu_by_id(self, gpu_id: int) -> GPU | None:
+    def get_gpu_by_id(self, gpu_id: int) -> GPU | None:
         query = """
-            SELECT *
+            SELECT
+                gpu_id,
+                gpu_name,
+                gpu_vendor,
+                vram_type,
+                vram_gb
             FROM gpus
-            WHERE gpu_id = $1;
+            WHERE gpu_id = %s;
         """
-        async with self._get_connection() as conn:
-            result = await conn.fetchrow(query, gpu_id)
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(query, (gpu_id,))
+                result = cursor.fetchone()
 
         return self._get_gpu_from_record(result)
 
-    async def get_gpu_by_name(self, gpu_name: str) -> GPU | None:
+    def get_gpu_by_name(self, gpu_name: str) -> GPU | None:
         query = """
-            SELECT *
+            SELECT
+                gpu_id,
+                gpu_name,
+                gpu_vendor,
+                vram_type,
+                vram_gb
             FROM gpus
-            WHERE gpu_id = $1;
+            WHERE gpu_name = %s;
         """
-        async with self._get_connection() as conn:
-            result = await conn.fetchrow(query, gpu_name)
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(query, (gpu_name,))
+                result = cursor.fetchone()
 
         return self._get_gpu_from_record(result)
 
-    async def get_gpus(self) -> list[GPU]:
+    def get_gpus(self) -> list[GPU]:
         query = """
-            SELECT *
-            FROM gpus; 
+            SELECT
+                gpu_id,
+                gpu_name,
+                gpu_vendor,
+                vram_type,
+                vram_gb
+            FROM gpus
+            ORDER BY gpu_id;
         """
-        async with self._get_connection() as conn:
-            result = await conn.fetch(query)
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(query)
+                result = cursor.fetchall()
 
         return [self._get_gpu_from_record(record) for record in result]
 
-    async def create_gpu(
+    def create_gpu(
         self, gpu_name: str, gpu_vendor: str, vram_type: str, vram_gb: int
-    ):
+    ) -> GPU:
         query = """
             INSERT INTO gpus (
                 gpu_name, gpu_vendor, vram_type, vram_gb
             )
-            VALUES (
-                $1, $2, $3, $4
-            )
+            VALUES (%s, %s, %s, %s)
             RETURNING gpu_id;
         """
-        async with self._get_connection() as conn:
-            gpu_id = await conn.fetchval(
-                query, gpu_name, gpu_vendor, vram_type, vram_gb
-            )
+        with self._get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (gpu_name, gpu_vendor, vram_type, vram_gb))
+                gpu_id = cursor.fetchone()[0]
+            conn.commit()
 
         gpu = GPU(
             gpu_id=gpu_id,
@@ -171,81 +216,126 @@ class HardwareRepository(BaseRepository, HardwareRepositoryABC):
         )
         return gpu
 
-    async def delete_gpu(self, gpu_id: int) -> None:
+    def delete_gpu(self, gpu_id: int) -> None:
         query = """
             DELETE FROM gpus
-            WHERE gpu_id = $1; 
+            WHERE gpu_id = %s; 
         """
-        async with self._get_connection() as conn:
-            conn.execute(query, gpu_id)
+        with self._get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (gpu_id,))
+            conn.commit()
 
-    async def get_hardware_by_id(self, hardware_id: int) -> Hardware | None:
+    def get_hardware_by_id(self, hardware_id: int) -> Hardware | None:
         query = """
-            SELECT *
+            SELECT
+                hardware_id,
+                cpu_id,
+                cpu_name,
+                cpu_vendor,
+                cores,
+                frequency,
+                cpus_count,
+                gpu_id,
+                gpu_name,
+                gpu_vendor,
+                vram_type,
+                vram_gb,
+                gpus_count,
+                storage_tb,
+                ram_gb,
+                bandwidth_gbps
             FROM extended_hardwares
-            WHERE hardware_id = $1;
+            WHERE hardware_id = %s;
         """
-        async with self._get_connection() as conn:
-            result = await conn.fetchrow(query, hardware_id)
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(query, (hardware_id,))
+                result = cursor.fetchone()
 
         return self.get_hardware_from_record(result)
 
-    async def get_hardwares(self) -> list[Hardware]:
+    def get_hardwares(self) -> list[Hardware]:
         query = """
-            SELECT *
+            SELECT
+                hardware_id,
+                cpu_id,
+                cpu_name,
+                cpu_vendor,
+                cores,
+                frequency,
+                cpus_count,
+                gpu_id,
+                gpu_name,
+                gpu_vendor,
+                vram_type,
+                vram_gb,
+                gpus_count,
+                storage_tb,
+                ram_gb,
+                bandwidth_gbps
             FROM extended_hardwares
+            ORDER BY hardware_id;
         """
-        async with self._get_connection() as conn:
-            result = await conn.fetch(query)
+        with self._get_connection() as conn:
+            with conn.cursor(cursor_factory=RealDictCursor) as cursor:
+                cursor.execute(query)
+                result = cursor.fetchall()
 
         return [self.get_hardware_from_record(record) for record in result]
 
-    async def create_hardware(
+    def create_hardware(
         self,
         cpu: CPU,
         cpus_count: int,
-        storage_gb: int,
+        storage_tb: int,
         ram_gb: int,
-        bandwidth_mbps: int,
+        bandwidth_gbps: int,
         gpu: GPU | None = None,
         gpus_count: int = 0,
-    ):
+    ) -> Hardware:
         query = """
             INSERT INTO hardwares (
-                cpu_id, cpus_count, gpu_id, gpus_count, storage_gb, ram_gb, bandwidth_mbps
+                cpu_id, cpus_count, gpu_id, gpus_count, storage_tb, ram_gb,bandwidth_gbps 
             )
-            VALUES (
-                $1, $2, $3, $4, $5, $6, $7
-            )
+            VALUES (%s, %s, %s, %s, %s, %s, %s)
             RETURNING hardware_id;
         """
-        async with self._get_connection() as conn:
-            hardware_id = await conn.fetchval(
-                query,
-                cpu.cpu_id,
-                cpus_count,
-                gpu.gpu_id if gpu is not None else None,
-                gpus_count,
-                storage_gb,
-                ram_gb,
-                bandwidth_mbps,
-            )
+        with self._get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(
+                    query,
+                    (
+                        cpu.cpu_id,
+                        cpus_count,
+                        gpu.gpu_id if gpu else None,
+                        gpus_count,
+                        storage_tb,
+                        ram_gb,
+                        bandwidth_gbps,
+                    ),
+                )
+                hardware_id = cursor.fetchone()[0]
+                conn.commit()
+
         hardware = Hardware(
             hardware_id=hardware_id,
             cpu=cpu,
             cpus_count=cpus_count,
             gpu=gpu,
             gpus_count=gpus_count,
-            storage_gb=storage_gb,
+            storage_tb=storage_tb,
             ram_gb=ram_gb,
-            bandwidth_mbps=bandwidth_mbps,
+            bandwidth_gbps=bandwidth_gbps,
         )
         return hardware
 
-    async def delete_hardware(self, hardware_id: int) -> None:
+    def delete_hardware(self, hardware_id: int) -> None:
         query = """
             DELETE FROM hardwares
-            WHERE hardware_id = $1;
+            WHERE hardware_id = %s;
         """
-        async with self._get_connection() as conn:
-            await conn.execute(query, hardware_id)
+        with self._get_connection() as conn:
+            with conn.cursor() as cursor:
+                cursor.execute(query, (hardware_id,))
+            conn.commit()

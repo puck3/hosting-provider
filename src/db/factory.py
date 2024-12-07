@@ -1,4 +1,4 @@
-from asyncpg import Pool
+from psycopg2.pool import SimpleConnectionPool
 from src.db.hardware_repository import HardwareRepository
 from src.db.plan_repository import PlanRepository
 from src.db.rental_repository import RentalRepository
@@ -7,7 +7,7 @@ from src.db.user_repository import UserRepository
 
 
 class RepositoriesFactory:
-    def __init__(self, pool: Pool):
+    def __init__(self, pool: SimpleConnectionPool):
         self._pool = pool
 
     def get_user_repository(self) -> UserRepository:
