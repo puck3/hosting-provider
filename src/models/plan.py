@@ -4,9 +4,9 @@ from src.models.hardware import Hardware
 
 
 class BillingPeriod(str, Enum):
-    hourly = "hourly"
-    daily = "daily"
-    monthly = "monthly"
+    hourly = "час"
+    daily = "сутки"
+    monthly = "месяц"
 
 
 class Plan(BaseModel):
@@ -15,4 +15,3 @@ class Plan(BaseModel):
     price: float
     billing_period: BillingPeriod
     plan_name: str
-    plan_description: str

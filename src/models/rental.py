@@ -2,20 +2,27 @@ from pydantic import BaseModel
 from datetime import datetime, timedelta
 from src.models.server import Server
 from src.models.user import User
-from src.models.plan import BillingPeriod, Plan
+from src.models.plan import BillingPeriod
+
+
+class UserData(BaseModel):
+    user_id: int
+    login: str
+    email: str
 
 
 class Rental(BaseModel):
     rental_id: int
-    user: User
+    user: UserData
     server: Server
-    plan: Plan
+    price: float
+    billing_period: BillingPeriod
     start_at: datetime
     end_at: datetime
     update_at: datetime
 
     def extend(self) -> None:
-        match self.plan.billing_period:
+        match self.billing_period:
             case BillingPeriod.hourly:
                 self.end_at += timedelta(hours=1)
 

@@ -23,6 +23,6 @@ class Hardware(BaseModel):
     cpus_count: int
     gpu: GPU | None
     gpus_count: int
-    storage_gb: int
+    storage_tb: int
     ram_gb: int
-    bandwidth_mbps: int
+    bandwidth_gbps: int
