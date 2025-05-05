@@ -1,6 +1,6 @@
 CREATE TYPE role_type AS ENUM ('Пользователь', 'Администратор');
 
-CREATE TABLE users (
+CREATE TABLE users IF NOT EXISTS(
     user_id SERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     login VARCHAR(50) NOT NULL UNIQUE,
@@ -11,14 +11,14 @@ CREATE TABLE users (
     birthdate DATE
 );
 
-CREATE TABLE datacenters (
+CREATE TABLE datacenters IF NOT EXISTS (
     datacenter_id SERIAL PRIMARY KEY,
     datacenter_name VARCHAR(50) NOT NULL,
     country VARCHAR(50) NOT NULL,
     city VARCHAR(50) NOT NULL
 );
 
-CREATE TABLE cpus (
+CREATE TABLE cpus IF NOT EXISTS (
     cpu_id SERIAL PRIMARY KEY,
     cpu_name VARCHAR(50) NOT NULL,
     cpu_vendor VARCHAR(50) NOT NULL,
@@ -26,7 +26,7 @@ CREATE TABLE cpus (
     frequency DECIMAL(5, 2) NOT NULL CHECK (frequency > 0)
 );
 
-CREATE TABLE gpus (
+CREATE TABLE gpus IF NOT EXISTS (
     gpu_id SERIAL PRIMARY KEY,
     gpu_name VARCHAR(50) NOT NULL,
     gpu_vendor VARCHAR(50) NOT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE gpus (
     vram_gb INTEGER NOT NULL CHECK (vram_gb > 0)
 );
 
-CREATE TABLE hardwares (
+CREATE TABLE hardwares IF NOT EXISTS (
     hardware_id SERIAL PRIMARY KEY,
     cpu_id INTEGER NOT NULL REFERENCES cpus ON DELETE CASCADE,
     cpus_count INTEGER DEFAULT 1 CHECK (cpus_count > 0),
@@ -48,7 +48,7 @@ CREATE TABLE hardwares (
 
 CREATE TYPE status_type AS ENUM ('В аренде', 'Доступен');
 
-CREATE TABLE servers (
+CREATE TABLE servers IF NOT EXISTS (
     server_id SERIAL PRIMARY KEY,
     status status_type NOT NULL,
     datacenter_id INTEGER NOT NULL REFERENCES datacenters ON DELETE CASCADE,
@@ -58,7 +58,7 @@ CREATE TABLE servers (
 
 CREATE TYPE billing_period_type AS ENUM('час', 'сутки', 'месяц');
 
-CREATE TABLE plans (
+CREATE TABLE plans IF NOT EXISTS (
     plan_id SERIAL PRIMARY KEY,
     plan_name VARCHAR(50) NOT NULL,
     hardware_id INTEGER NOT NULL REFERENCES hardwares ON DELETE CASCADE,
@@ -67,7 +67,7 @@ CREATE TABLE plans (
     UNIQUE (hardware_id, billing_period)
 );
 
-CREATE TABLE rentals (
+CREATE TABLE rentals IF NOT EXISTS (
     rental_id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users ON DELETE CASCADE,
     server_id INTEGER NOT NULL REFERENCES servers ON DELETE RESTRICT,
