@@ -1,20 +1,13 @@
-[tool.poetry]
-package-mode = false
+[project]
 name = "hosting-provider"
 version = "0.1.0"
-description = ""
-authors = ["puck3 <shipilovk04@gmail.com>"]
+description = "Add your description here"
 readme = "README.md"
-
-[tool.poetry.dependencies]
-python = "^3.12"
-passlib = "^1.7.4"
-python-dotenv = "^1.0.1"
-pydantic = "^2.10.3"
-streamlit = "^1.40.2"
-psycopg2-binary = "^2.9.10"
-
-
-[build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
+requires-python = ">=3.13"
+dependencies = [
+    "passlib>=1.7.4",
+    "psycopg2-binary>=2.9.10",
+    "pydantic>=2.11.4",
+    "python-dotenv>=1.1.0",
+    "streamlit>=1.45.0",
+]
