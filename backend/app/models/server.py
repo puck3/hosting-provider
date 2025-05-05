@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 from enum import Enum
 
-from src.models.hardware import Hardware
+from app.models.hardware import Hardware
 
 
 class Status(str, Enum):

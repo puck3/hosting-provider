@@ -1,8 +1,8 @@
 import atexit
 from psycopg2.pool import SimpleConnectionPool
-from src.core.config import DB_CONFIG, POOL_MIN_CONN, POOL_MAX_CONN
-from src.db.factory import RepositoriesFactory
-from src.services.factory import ServicesFactory
+from app.core.config import DB_CONFIG, POOL_MIN_CONN, POOL_MAX_CONN
+from app.db.factory import RepositoriesFactory
+from app.services.factory import ServicesFactory
 
 _services_factory: ServicesFactory | None = None
 _pool: SimpleConnectionPool | None = None

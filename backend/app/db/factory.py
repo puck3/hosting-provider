@@ -1,11 +1,11 @@
 from psycopg2.pool import SimpleConnectionPool
 
-from src.db.hardware_repository import HardwareRepository
-from src.db.plan_repository import PlanRepository
-from src.db.rental_repository import RentalRepository
-from src.db.server_repository import ServerRepository
-from src.db.user_repository import UserRepository
-from src.services.factory import RepositoriesFactoryABC
+from app.db.hardware_repository import HardwareRepository
+from app.db.plan_repository import PlanRepository
+from app.db.rental_repository import RentalRepository
+from app.db.server_repository import ServerRepository
+from app.db.user_repository import UserRepository
+from app.services.factory import RepositoriesFactoryABC
 
 
 class RepositoriesFactory(RepositoriesFactoryABC):

@@ -1,11 +1,11 @@
 from abc import ABC, abstractmethod
 from datetime import date
 
-from src.models.hardware import CPU, GPU, Hardware
-from src.models.plan import BillingPeriod, Plan
-from src.models.rental import Rental
-from src.models.server import Datacenter, Server, Status
-from src.models.user import User, Role
+from app.models.hardware import CPU, GPU, Hardware
+from app.models.plan import BillingPeriod, Plan
+from app.models.rental import Rental
+from app.models.server import Datacenter, Server, Status
+from app.models.user import User, Role
 
 
 class UserRepositoryABC(ABC):
@@ -148,7 +148,9 @@ class ServerRepositoryABC(ABC):
     def get_datacenter_by_id(self, datacenter_id: int) -> Datacenter | None: ...
 
     @abstractmethod
-    def get_datacenter_by_name(self, datacenter_name: str) -> Datacenter | None: ...
+    def get_datacenter_by_name(
+        self, datacenter_name: str
+    ) -> Datacenter | None: ...
 
     @abstractmethod
     def get_datacenters(self) -> list[Datacenter]: ...
@@ -187,7 +189,11 @@ class ServerRepositoryABC(ABC):
 class RentalRepositoryABC(ABC):
     @abstractmethod
     def create_rental(
-        self, user: User, server: Server, price: float, billing_period: BillingPeriod
+        self,
+        user: User,
+        server: Server,
+        price: float,
+        billing_period: BillingPeriod,
     ) -> Rental: ...
 
     @abstractmethod

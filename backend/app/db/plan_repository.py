@@ -1,9 +1,9 @@
 from psycopg2.extras import RealDictCursor
-from src.models.hardware import Hardware
-from src.models.plan import BillingPeriod, Plan
-from src.services.repositories_abc import PlanRepositoryABC
-from src.db.base import BaseRepository
-from src.db.hardware_repository import HardwareRepository
+from app.models.hardware import Hardware
+from app.models.plan import BillingPeriod, Plan
+from app.services.repositories_abc import PlanRepositoryABC
+from app.db.base import BaseRepository
+from app.db.hardware_repository import HardwareRepository
 
 
 class PlanRepository(BaseRepository, PlanRepositoryABC):

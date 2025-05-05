@@ -1,9 +1,9 @@
 from datetime import date
 from passlib.context import CryptContext
 
-from src.core.config import CRYPT_CONTEXT_CONFIG
-from src.models.user import User, Role
-from src.services.repositories_abc import RepositoriesFactoryABC
+from app.core.config import CRYPT_CONTEXT_CONFIG
+from app.models.user import User, Role
+from app.services.repositories_abc import RepositoriesFactoryABC
 
 
 class UserService:
@@ -78,7 +78,9 @@ class UserService:
         user.password_hash = self.password_context.hash(new_password)
         self._users.save_user(user)
 
-    def change_user_email(self, user_id: int, password: str, email: str) -> None:
+    def change_user_email(
+        self, user_id: int, password: str, email: str
+    ) -> None:
         user = self._require_user(user_id)
 
         self._assert_valid_password(password, user.password_hash)
@@ -87,7 +89,9 @@ class UserService:
         user.email = email
         self._users.save_user(user)
 
-    def change_user_login(self, user_id: int, password: str, login: str) -> None:
+    def change_user_login(
+        self, user_id: int, password: str, login: str
+    ) -> None:
         user = self._require_user(user_id)
 
         self._assert_valid_password(password, user.password_hash)

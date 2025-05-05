@@ -1,6 +1,6 @@
 from datetime import datetime
-from src.models.rental import Rental
-from src.services.repositories_abc import RepositoriesFactoryABC
+from app.models.rental import Rental
+from app.services.repositories_abc import RepositoriesFactoryABC
 
 
 class RentalService:
@@ -17,7 +17,9 @@ class RentalService:
         if (plan := self._plans.get_plan_by_id(plan_id)) is None:
             raise ValueError("Plan not found.")
 
-        server_id = self._servers.reserve_server(plan.hardware.hardware_id, country)
+        server_id = self._servers.reserve_server(
+            plan.hardware.hardware_id, country
+        )
 
         if (server := self._servers.get_server_by_id(server_id)) is None:
             raise ValueError("Server not found.")

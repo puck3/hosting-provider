@@ -1,7 +1,7 @@
 from psycopg2.extras import RealDictCursor
-from src.models.hardware import CPU, GPU, Hardware
-from src.services.repositories_abc import HardwareRepositoryABC
-from src.db.base import BaseRepository
+from app.models.hardware import CPU, GPU, Hardware
+from app.services.repositories_abc import HardwareRepositoryABC
+from app.db.base import BaseRepository
 
 
 class HardwareRepository(BaseRepository, HardwareRepositoryABC):

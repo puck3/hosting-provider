@@ -1,9 +1,9 @@
 from psycopg2.extras import RealDictCursor
-from src.db.base import BaseRepository
-from src.db.hardware_repository import HardwareRepository
-from src.models.hardware import Hardware
-from src.models.server import Datacenter, Server, Status
-from src.services.repositories_abc import ServerRepositoryABC
+from app.db.base import BaseRepository
+from app.db.hardware_repository import HardwareRepository
+from app.models.hardware import Hardware
+from app.models.server import Datacenter, Server, Status
+from app.services.repositories_abc import ServerRepositoryABC
 
 
 class ServerRepository(BaseRepository, ServerRepositoryABC):

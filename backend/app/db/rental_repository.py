@@ -1,13 +1,13 @@
 from datetime import datetime, timedelta
 from psycopg2.extras import RealDictCursor
 
-from src.db.base import BaseRepository
-from src.db.server_repository import ServerRepository
-from src.models.plan import BillingPeriod
-from src.models.rental import Rental, UserData
-from src.models.server import Server
-from src.models.user import User
-from src.services.repositories_abc import RentalRepositoryABC
+from app.db.base import BaseRepository
+from app.db.server_repository import ServerRepository
+from app.models.plan import BillingPeriod
+from app.models.rental import Rental, UserData
+from app.models.server import Server
+from app.models.user import User
+from app.services.repositories_abc import RentalRepositoryABC
 
 
 class RentalRepository(BaseRepository, RentalRepositoryABC):

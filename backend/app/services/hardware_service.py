@@ -1,5 +1,5 @@
-from src.models.hardware import Hardware, CPU, GPU
-from src.services.repositories_abc import RepositoriesFactoryABC
+from app.models.hardware import Hardware, CPU, GPU
+from app.services.repositories_abc import RepositoriesFactoryABC
 
 
 class HardwareService:

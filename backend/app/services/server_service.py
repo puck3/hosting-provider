@@ -1,5 +1,5 @@
-from src.models.server import Server, Status, Datacenter
-from src.services.repositories_abc import RepositoriesFactoryABC
+from app.models.server import Server, Status, Datacenter
+from app.services.repositories_abc import RepositoriesFactoryABC
 
 
 class ServerService:
@@ -13,7 +13,9 @@ class ServerService:
         if self._servers.get_datacenter_by_name(datacenter_name) is not None:
             raise ValueError("Datacenter already exists.")
 
-        datacenter = self._servers.create_datacenter(datacenter_name, country, city)
+        datacenter = self._servers.create_datacenter(
+            datacenter_name, country, city
+        )
         return datacenter
 
     def delete_datacenter(self, datacenter_id: int) -> None:
@@ -29,10 +31,14 @@ class ServerService:
         status: Status,
         operating_system: str,
     ) -> Server:
-        if (datacenter := self._servers.get_datacenter_by_id(datacenter_id)) is None:
+        if (
+            datacenter := self._servers.get_datacenter_by_id(datacenter_id)
+        ) is None:
             raise ValueError("Datacenter not found.")
 
-        if (hardware := self._hardwares.get_hardware_by_id(hardware_id)) is None:
+        if (
+            hardware := self._hardwares.get_hardware_by_id(hardware_id)
+        ) is None:
             raise ValueError("Hardware not found.")
 
         server = self._servers.create_server(

@@ -1,6 +1,6 @@
 from enum import Enum
 from pydantic import BaseModel
-from src.models.hardware import Hardware
+from app.models.hardware import Hardware
 
 
 class BillingPeriod(str, Enum):

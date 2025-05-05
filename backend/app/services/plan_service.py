@@ -1,5 +1,5 @@
-from src.services.repositories_abc import RepositoriesFactoryABC
-from src.models.plan import BillingPeriod, Plan
+from app.services.repositories_abc import RepositoriesFactoryABC
+from app.models.plan import BillingPeriod, Plan
 
 
 class PlanService:

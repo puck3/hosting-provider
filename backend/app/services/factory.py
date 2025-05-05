@@ -1,9 +1,9 @@
-from src.services.hardware_service import HardwareService
-from src.services.plan_service import PlanService
-from src.services.rental_service import RentalService
-from src.services.repositories_abc import RepositoriesFactoryABC
-from src.services.server_service import ServerService
-from src.services.user_service import UserService
+from app.services.hardware_service import HardwareService
+from app.services.plan_service import PlanService
+from app.services.rental_service import RentalService
+from app.services.repositories_abc import RepositoriesFactoryABC
+from app.services.server_service import ServerService
+from app.services.user_service import UserService
 
 
 class ServicesFactory:
