@@ -22,8 +22,13 @@ class ServerRepository(BaseRepository, ServerRepositoryABC):
         with self._get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (datacenter_name, country, city))
-                datacenter_id = cursor.fetchone()[0]
+                result = cursor.fetchone()
             conn.commit()
+
+            if result is None:
+                raise Exception("Datacenter creation failed")
+
+            datacenter_id = result[0]
 
         datacenter = Datacenter(
             datacenter_id=datacenter_id,
@@ -99,7 +104,13 @@ class ServerRepository(BaseRepository, ServerRepositoryABC):
                 cursor.execute(query)
                 result = cursor.fetchall()
 
-        return [self._get_datacenter_from_record(record) for record in result]
+        return [
+            dc
+            for dc in (
+                self._get_datacenter_from_record(record) for record in result
+            )
+            if dc is not None
+        ]
 
     def create_server(
         self,
@@ -122,11 +133,16 @@ class ServerRepository(BaseRepository, ServerRepositoryABC):
         with self._get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    query, (datacenter_id, hardware_id, status, operating_system)
+                    query,
+                    (datacenter_id, hardware_id, status, operating_system),
                 )
-                server_id = cursor.fetchone()[0]
+                result = cursor.fetchone()
                 conn.commit()
 
+        if result is None:
+            raise Exception("Server creation failed")
+
+        server_id = result[0]
         server = Server(
             server_id=server_id,
             datacenter=datacenter,
@@ -184,8 +200,8 @@ class ServerRepository(BaseRepository, ServerRepositoryABC):
                 if key in Datacenter.model_fields.keys()
             }
             server_data["datacenter"] = Datacenter(**datacenter_data)
-            server_data["hardware"] = HardwareRepository.get_hardware_from_record(
-                record
+            server_data["hardware"] = (
+                HardwareRepository.get_hardware_from_record(record)
             )
             return Server(**server_data)
 
@@ -290,11 +306,16 @@ class ServerRepository(BaseRepository, ServerRepositoryABC):
         with self._get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(
-                    query, (hardware_id, country, Status.available, Status.rented)
+                    query,
+                    (hardware_id, country, Status.available, Status.rented),
                 )
-                reserved_server_id = cursor.fetchone()[0]
+                result = cursor.fetchone()
             conn.commit()
 
+        if result is None:
+            raise Exception("Server reservation failed")
+
+        reserved_server_id = result[0]
         return reserved_server_id
 
     def release_servers(self) -> None:

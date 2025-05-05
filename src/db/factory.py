@@ -1,12 +1,14 @@
 from psycopg2.pool import SimpleConnectionPool
+
 from src.db.hardware_repository import HardwareRepository
 from src.db.plan_repository import PlanRepository
 from src.db.rental_repository import RentalRepository
 from src.db.server_repository import ServerRepository
 from src.db.user_repository import UserRepository
+from src.services.factory import RepositoriesFactoryABC
 
 
-class RepositoriesFactory:
+class RepositoriesFactory(RepositoriesFactoryABC):
     def __init__(self, pool: SimpleConnectionPool):
         self._pool = pool
 

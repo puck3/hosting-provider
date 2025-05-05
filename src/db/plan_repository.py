@@ -30,8 +30,13 @@ class PlanRepository(BaseRepository, PlanRepositoryABC):
                     query,
                     (hardware_id, price, billing_period, plan_name),
                 )
-                plan_id = cursor.fetchone()[0]
+                result = cursor.fetchone()
                 conn.commit()
+
+            if result is None:
+                raise RuntimeError("Failed to create plan")
+
+            plan_id = result[0]
 
         plan = Plan(
             plan_id=plan_id,
@@ -62,7 +67,9 @@ class PlanRepository(BaseRepository, PlanRepositoryABC):
                 for key, value in record.items()
                 if key in Plan.model_fields.keys()
             }
-            plan_data["hardware"] = HardwareRepository.get_hardware_from_record(record)
+            plan_data["hardware"] = HardwareRepository.get_hardware_from_record(
+                record
+            )
             return Plan(**plan_data)
 
     def get_plan_by_id(self, plan_id: int) -> Plan | None:
@@ -170,7 +177,11 @@ class PlanRepository(BaseRepository, PlanRepositoryABC):
                 cursor.execute(query)
                 result = cursor.fetchall()
 
-        return [self.get_plan_from_record(record) for record in result]
+        return [
+            plan
+            for plan in (self.get_plan_from_record(record) for record in result)
+            if plan is not None
+        ]
 
     def get_available_plans_by_country(self, country: str) -> list[Plan]:
         query = """
@@ -204,4 +215,8 @@ class PlanRepository(BaseRepository, PlanRepositoryABC):
                 cursor.execute(query, (country,))
                 result = cursor.fetchall()
 
-        return [self.get_plan_from_record(record) for record in result]
+        return [
+            plan
+            for plan in (self.get_plan_from_record(record) for record in result)
+            if plan is not None
+        ]

@@ -100,7 +100,11 @@ class HardwareRepository(BaseRepository, HardwareRepositoryABC):
                 cursor.execute(query)
                 result = cursor.fetchall()
 
-        return [self._get_cpu_from_record(record) for record in result]
+        return [
+            cpu
+            for cpu in (self._get_cpu_from_record(record) for record in result)
+            if cpu is not None
+        ]
 
     def create_cpu(
         self, cpu_name: str, cpu_vendor: str, cores: int, frequency: float
@@ -115,8 +119,13 @@ class HardwareRepository(BaseRepository, HardwareRepositoryABC):
         with self._get_connection() as conn:
             with conn.cursor() as cursor:
                 cursor.execute(query, (cpu_name, cpu_vendor, cores, frequency))
-                cpu_id = cursor.fetchone()[0]
+                result = cursor.fetchone()
             conn.commit()
+
+        if result is None:
+            raise RuntimeError("Failed to create CPU")
+
+        cpu_id = result[0]
 
         cpu = CPU(
             cpu_id=cpu_id,
@@ -189,7 +198,11 @@ class HardwareRepository(BaseRepository, HardwareRepositoryABC):
                 cursor.execute(query)
                 result = cursor.fetchall()
 
-        return [self._get_gpu_from_record(record) for record in result]
+        return [
+            gpu
+            for gpu in (self._get_gpu_from_record(record) for record in result)
+            if gpu is not None
+        ]
 
     def create_gpu(
         self, gpu_name: str, gpu_vendor: str, vram_type: str, vram_gb: int
@@ -203,9 +216,16 @@ class HardwareRepository(BaseRepository, HardwareRepositoryABC):
         """
         with self._get_connection() as conn:
             with conn.cursor() as cursor:
-                cursor.execute(query, (gpu_name, gpu_vendor, vram_type, vram_gb))
-                gpu_id = cursor.fetchone()[0]
+                cursor.execute(
+                    query, (gpu_name, gpu_vendor, vram_type, vram_gb)
+                )
+                result = cursor.fetchone()
             conn.commit()
+
+        if result is None:
+            raise RuntimeError("Failed to create GPU")
+
+        gpu_id = result[0]
 
         gpu = GPU(
             gpu_id=gpu_id,
@@ -282,7 +302,13 @@ class HardwareRepository(BaseRepository, HardwareRepositoryABC):
                 cursor.execute(query)
                 result = cursor.fetchall()
 
-        return [self.get_hardware_from_record(record) for record in result]
+        return [
+            hw
+            for hw in (
+                self.get_hardware_from_record(record) for record in result
+            )
+            if hw is not None
+        ]
 
     def create_hardware(
         self,
@@ -315,8 +341,13 @@ class HardwareRepository(BaseRepository, HardwareRepositoryABC):
                         bandwidth_gbps,
                     ),
                 )
-                hardware_id = cursor.fetchone()[0]
+                result = cursor.fetchone()
                 conn.commit()
+
+            if result is None:
+                raise RuntimeError("Failed to create hardware")
+
+            hardware_id = result[0]
 
         hardware = Hardware(
             hardware_id=hardware_id,

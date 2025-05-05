@@ -12,7 +12,11 @@ from src.services.repositories_abc import RentalRepositoryABC
 
 class RentalRepository(BaseRepository, RentalRepositoryABC):
     def create_rental(
-        self, user: User, server: Server, price: float, billing_period: BillingPeriod
+        self,
+        user: User,
+        server: Server,
+        price: float,
+        billing_period: BillingPeriod,
     ) -> Rental:
         query = """
             INSERT INTO rentals (
@@ -44,10 +48,16 @@ class RentalRepository(BaseRepository, RentalRepositoryABC):
                         start_at,
                     ),
                 )
-                rental_id = cursor.fetchone()[0]
+                result = cursor.fetchone()
             conn.commit()
 
-        user_data = UserData(user_id=user.user_id, login=user.login, email=user.email)
+            if result is None:
+                raise RuntimeError("Failed to create rental")
+            rental_id = result[0]
+
+        user_data = UserData(
+            user_id=user.user_id, login=user.login, email=user.email
+        )
         rental = Rental(
             rental_id=rental_id,
             user=user_data,
@@ -96,7 +106,9 @@ class RentalRepository(BaseRepository, RentalRepositoryABC):
                 if key in UserData.model_fields.keys()
             }
             rental_data["user"] = UserData(**user_data)
-            rental_data["server"] = ServerRepository.get_server_from_record(record)
+            rental_data["server"] = ServerRepository.get_server_from_record(
+                record
+            )
             return Rental(**rental_data)
 
     def get_rental_by_id(self, rental_id: int) -> Rental | None:
@@ -195,7 +207,13 @@ class RentalRepository(BaseRepository, RentalRepositoryABC):
                 cursor.execute(query)
                 result = cursor.fetchall()
 
-        return [self.get_rental_from_record(record) for record in result]
+        return [
+            rental
+            for rental in (
+                self.get_rental_from_record(record) for record in result
+            )
+            if rental is not None
+        ]
 
     def get_rentals_by_user(self, user_id: int) -> list[Rental]:
         query = """
@@ -245,4 +263,10 @@ class RentalRepository(BaseRepository, RentalRepositoryABC):
                 cursor.execute(query, (user_id,))
                 result = cursor.fetchall()
 
-        return [self.get_rental_from_record(record) for record in result]
+        return [
+            rental
+            for rental in (
+                self.get_rental_from_record(record) for record in result
+            )
+            if rental is not None
+        ]

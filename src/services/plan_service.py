@@ -13,11 +13,14 @@ class PlanService:
         price: float,
         billing_period: BillingPeriod,
         plan_name: str,
+        plan_description: str,
     ) -> Plan:
         if self._plans.get_plan_by_name(plan_name) is not None:
             raise ValueError("Plan already exists")
 
-        if (hardware := self._hardwares.get_hardware_by_id(hardware_id)) is None:
+        if (
+            hardware := self._hardwares.get_hardware_by_id(hardware_id)
+        ) is None:
             raise ValueError("Hardware not found.")
 
         plan = self._plans.create_plan(
@@ -25,6 +28,7 @@ class PlanService:
             price,
             billing_period,
             plan_name,
+            plan_description,
         )
         return plan
 

@@ -95,7 +95,13 @@ class UserRepository(BaseRepository, UserRepositoryABC):
                 cursor.execute(query)
                 result = cursor.fetchall()
 
-        return [self._get_user_from_record(record) for record in result]
+        return [
+            user
+            for user in (
+                self._get_user_from_record(record) for record in result
+            )
+            if user is not None
+        ]
 
     def create_user(
         self,
@@ -128,9 +134,12 @@ class UserRepository(BaseRepository, UserRepositoryABC):
                         birthdate,
                     ),
                 )
-                user_id = cursor.fetchone()[0]
+                result = cursor.fetchone()
             conn.commit()
+        if result is None:
+            raise Exception("User creation failed")
 
+        user_id = result[0]
         user = User(
             user_id=user_id,
             email=email,

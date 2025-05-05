@@ -8,7 +8,7 @@ class HardwareService:
 
     def add_cpu(
         self, cpu_name: str, cpu_vendor: str, cores: int, frequency: float
-    ) -> GPU:
+    ) -> CPU:
         if self._hardwares.get_cpu_by_name(cpu_name):
             raise ValueError("CPU is already added.")
 
@@ -27,7 +27,9 @@ class HardwareService:
         if self._hardwares.get_gpu_by_name(gpu_name):
             raise ValueError("GPU is already added.")
 
-        gpu = self._hardwares.create_gpu(gpu_name, gpu_vendor, vram_type, vram_gb)
+        gpu = self._hardwares.create_gpu(
+            gpu_name, gpu_vendor, vram_type, vram_gb
+        )
         return gpu
 
     def get_gpus(self) -> list[GPU]:
@@ -52,7 +54,11 @@ class HardwareService:
         if gpu_id is not None and gpus_count == 0:
             raise ValueError("GPUs count must be positive to find gpu")
 
-        gpu = self._hardwares.get_gpu_by_id(gpu_id) if gpu_id is not None else None
+        gpu = (
+            self._hardwares.get_gpu_by_id(gpu_id)
+            if gpu_id is not None
+            else None
+        )
         if gpu is None and gpus_count > 0:
             raise ValueError("GPU not found")
 
