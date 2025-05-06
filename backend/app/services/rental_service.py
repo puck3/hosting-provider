@@ -35,7 +35,7 @@ class RentalService:
     def get_rentals_by_user(self, user_id: int) -> list[Rental]:
         return self._rentals.get_rentals_by_user(user_id)
 
-    def extend_rental(self, rental_id: int):
+    def extend_rental(self, rental_id: int) -> Rental:
         if (rental := self._rentals.get_rental_by_id(rental_id)) is None:
             raise ValueError("Rental not found.")
 
@@ -44,3 +44,4 @@ class RentalService:
 
         rental.extend()
         self._rentals.save_rental(rental)
+        return rental

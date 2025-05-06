@@ -1,6 +1,4 @@
-def main():
-    print("Hello from backend!")
-
+from app.main import main
 
 if __name__ == "__main__":
     main()
