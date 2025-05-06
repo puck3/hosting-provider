@@ -1,4 +1,3 @@
-import atexit
 from psycopg2.pool import SimpleConnectionPool
 from app.core.config import DB_CONFIG, POOL_MIN_CONN, POOL_MAX_CONN
 from app.db.factory import RepositoriesFactory
@@ -32,6 +31,3 @@ def close_connection_pool():
     if _pool:
         _pool.closeall()
         print("Connection pool closed.")
-
-
-atexit.register(close_connection_pool)
