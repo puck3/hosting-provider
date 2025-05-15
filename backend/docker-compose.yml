@@ -1,17 +1,37 @@
 services:
+  backend:
+    build: .
+    container_name: hosting-provider-backend
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    networks:
+      - hosting-provider-network
+
   db:
-    image: postgres:17.1
-    container_name: server_rental_db
+    image: postgres:17
+    container_name: hosting-provider-db
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      POSTGRES_DB: "server_rental"
-      POSTGRES_USER: "app"
-      POSTGRES_PASSWORD: "12345"
-      PGDATA: "/var/lib/postgresql/data/pgdata"
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
       - db-data:/var/lib/postgresql/data
+    networks:
+      - hosting-provider-network
 
 volumes:
   db-data:
+
+
+networks:
+  hosting-provider-network:
+    driver: bridge
