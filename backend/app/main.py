@@ -13,7 +13,9 @@ async def lifespan(app: FastAPI):
     close_connection_pool()
 
 
+app = FastAPI(lifespan=lifespan)
+app.include_router(router_v1)
+
+
 def main():
-    app = FastAPI(lifespan=lifespan)
-    app.include_router(router_v1)
-    run(app)
+    run("app.main:app", host="0.0.0.0", port=8000, reload=True)

@@ -7,7 +7,6 @@ from app.api.v1.schemas.user import (
     ChangePassword,
     CreateUser,
     DeleteUser,
-    LoginUser,
     Personal,
 )
 from app.db.connector import ServicesFactory, get_services_factory
@@ -53,14 +52,6 @@ async def register_user(
     user_service: UserService = Depends(get_user_service),
 ) -> User:
     return user_service.register_user(**user.model_dump())
-
-
-@router.get("/login")
-async def login_user(
-    user: LoginUser,
-    user_service: UserService = Depends(get_user_service),
-) -> User:
-    return user_service.login_user(**user.model_dump())
 
 
 @router.patch("/{user_id}/password")

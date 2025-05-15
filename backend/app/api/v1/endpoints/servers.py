@@ -5,8 +5,6 @@ from app.db.connector import ServicesFactory, get_services_factory
 from app.models.server import Datacenter, Server, Status
 from app.services.server_service import ServerService
 
-router = APIRouter(prefix="/servers", tags=["Servers"])
-
 
 async def get_server_service(
     services: ServicesFactory = Depends(get_services_factory),
@@ -14,14 +12,17 @@ async def get_server_service(
     return services.get_server_service()
 
 
-@router.get("/")
+servers_router = APIRouter(prefix="/servers", tags=["Servers"])
+
+
+@servers_router.get("/")
 async def get_servers(
     server_service: ServerService = Depends(get_server_service),
 ) -> list[Server]:
     return server_service.get_servers()
 
 
-@router.post("/")
+@servers_router.post("/")
 async def create_server(
     server: CreateServer,
     server_service: ServerService = Depends(get_server_service),
@@ -29,7 +30,7 @@ async def create_server(
     return server_service.create_server(**server.model_dump())
 
 
-@router.delete("/{server_id}")
+@servers_router.delete("/{server_id}")
 async def delete_server(
     server_id: int,
     server_service: ServerService = Depends(get_server_service),
@@ -37,7 +38,7 @@ async def delete_server(
     server_service.delete_server(server_id)
 
 
-@router.patch("/{server_id}/status")
+@servers_router.patch("/{server_id}/status")
 async def change_server_status(
     server_id: int,
     status: Status,
@@ -46,28 +47,31 @@ async def change_server_status(
     server_service.change_server_status(server_id, status)
 
 
-@router.patch("/release")
+@servers_router.patch("/release")
 async def release_servers(
     server_service: ServerService = Depends(get_server_service),
 ) -> None:
     server_service.release_servers()
 
 
-@router.patch("/fix_status")
+@servers_router.patch("/fix_status")
 async def fix_servers_status(
     server_service: ServerService = Depends(get_server_service),
 ) -> None:
     server_service.fix_servers_status()
 
 
-@router.get("/datacenters")
+datacenters_router = APIRouter(prefix="/datacenters", tags=["Datacenters"])
+
+
+@datacenters_router.get("/")
 async def get_datacenters(
     server_service: ServerService = Depends(get_server_service),
 ) -> list[Datacenter]:
     return server_service.get_datacenters()
 
 
-@router.post("/datacenters")
+@datacenters_router.post("/")
 async def add_datacenter(
     datacenter: CreateDatacenter,
     server_service: ServerService = Depends(get_server_service),
@@ -75,9 +79,14 @@ async def add_datacenter(
     return server_service.add_datacenter(**datacenter.model_dump())
 
 
-@router.delete("/datacenters/{datacenter_id}")
+@datacenters_router.delete("/{datacenter_id}")
 async def delete_datacenter(
     datacenter_id: int,
     server_service: ServerService = Depends(get_server_service),
 ) -> None:
     server_service.delete_datacenter(datacenter_id)
+
+
+router = APIRouter()
+router.include_router(servers_router)
+router.include_router(datacenters_router)
