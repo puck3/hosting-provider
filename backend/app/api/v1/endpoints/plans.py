@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends
 
 from app.api.v1.schemas.plan import CreatePlan
-from app.db.connector import ServicesFactory, get_services_factory
+from app.services.factory import ServicesFactory
+from app.dependencies.services_factory import get_services_factory
 from app.models.plan import Plan
 
 router = APIRouter(prefix="/plans", tags=["Plans"])

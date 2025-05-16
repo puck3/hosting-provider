@@ -1,7 +1,9 @@
+from typing import Annotated
 from fastapi import APIRouter, Depends
 
 from app.api.v1.schemas.hardware import CreateCPU, CreateGPU, CreateHardware
-from app.db.connector import ServicesFactory, get_services_factory
+from app.dependencies.services_factory import get_services_factory
+from app.services.factory import ServicesFactory
 from app.models.hardware import CPU, GPU, Hardware
 
 router = APIRouter(prefix="/hardwares", tags=["Hardwares"])
@@ -9,7 +11,7 @@ router = APIRouter(prefix="/hardwares", tags=["Hardwares"])
 
 @router.get("/")
 async def get_hardwares(
-    services: ServicesFactory = Depends(get_services_factory),
+    services: Annotated[ServicesFactory, Depends(get_services_factory)],
 ) -> list[Hardware]:
     hw_service = services.get_hardware_service()
     return hw_service.get_hardwares()
@@ -18,7 +20,7 @@ async def get_hardwares(
 @router.post("/")
 async def create_hardware(
     hw: CreateHardware,
-    services: ServicesFactory = Depends(get_services_factory),
+    services: Annotated[ServicesFactory, Depends(get_services_factory)],
 ) -> Hardware:
     hw_service = services.get_hardware_service()
     return hw_service.create_hardware(**hw.model_dump())
@@ -27,7 +29,7 @@ async def create_hardware(
 @router.delete("/{hardware_id}")
 async def delete_hardware(
     hardware_id: int,
-    services: ServicesFactory = Depends(get_services_factory),
+    services: Annotated[ServicesFactory, Depends(get_services_factory)],
 ) -> None:
     hw_service = services.get_hardware_service()
     hw_service.delete_hardware(hardware_id)
@@ -35,7 +37,7 @@ async def delete_hardware(
 
 @router.get("/cpus")
 async def get_cpus(
-    services: ServicesFactory = Depends(get_services_factory),
+    services: Annotated[ServicesFactory, Depends(get_services_factory)],
 ) -> list[CPU]:
     hw_service = services.get_hardware_service()
     return hw_service.get_cpus()
@@ -44,7 +46,7 @@ async def get_cpus(
 @router.post("/cpus")
 async def add_cpu(
     cpu: CreateCPU,
-    services: ServicesFactory = Depends(get_services_factory),
+    services: Annotated[ServicesFactory, Depends(get_services_factory)],
 ) -> CPU:
     hw_service = services.get_hardware_service()
     return hw_service.add_cpu(**cpu.model_dump())
@@ -53,7 +55,7 @@ async def add_cpu(
 @router.delete("/cpus/{cpu_id}")
 async def delete_cpu(
     cpu_id: int,
-    services: ServicesFactory = Depends(get_services_factory),
+    services: Annotated[ServicesFactory, Depends(get_services_factory)],
 ) -> None:
     hw_service = services.get_hardware_service()
     hw_service.delete_cpu(cpu_id)
@@ -61,7 +63,7 @@ async def delete_cpu(
 
 @router.get("/gpus")
 async def get_gpus(
-    services: ServicesFactory = Depends(get_services_factory),
+    services: Annotated[ServicesFactory, Depends(get_services_factory)],
 ) -> list[GPU]:
     hw_service = services.get_hardware_service()
     return hw_service.get_gpus()
@@ -70,7 +72,7 @@ async def get_gpus(
 @router.post("/gpus")
 async def add_gpu(
     gpu: CreateGPU,
-    services: ServicesFactory = Depends(get_services_factory),
+    services: Annotated[ServicesFactory, Depends(get_services_factory)],
 ) -> GPU:
     hw_service = services.get_hardware_service()
     return hw_service.add_gpu(**gpu.model_dump())
@@ -79,7 +81,7 @@ async def add_gpu(
 @router.delete("/gpus/{gpu_id}")
 async def delete_gpu(
     gpu_id: int,
-    services: ServicesFactory = Depends(get_services_factory),
+    services: Annotated[ServicesFactory, Depends(get_services_factory)],
 ) -> None:
     hw_service = services.get_hardware_service()
     hw_service.delete_gpu(gpu_id)
