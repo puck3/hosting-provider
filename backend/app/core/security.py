@@ -42,6 +42,9 @@ class JWT:
 
     def validate_token(self, token: str) -> dict:
         payload = self._decode(token)
+        if payload.get("type") != self._token_type:
+            raise jwt.InvalidTokenError("Invalid token type")
+
         return payload
 
     def _decode(self, token: str) -> dict:
