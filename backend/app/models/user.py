@@ -20,3 +20,9 @@ class User(BaseModel):
 
     def is_admin(self) -> bool:
         return self.role == Role.admin
+
+    def get_refresh_token_payload(self) -> dict:
+        return {"sub": self.user_id}
+
+    def get_access_token_payload(self) -> dict:
+        return {"sub": self.user_id, "role": self.role.value}

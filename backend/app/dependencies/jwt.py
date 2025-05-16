@@ -24,9 +24,9 @@ def get_refresh_token(
     return token
 
 
-def get_jwt_access_helper() -> JWT:
+def get_jwt_access() -> JWT:
     return JWT(**ACCESS_TOKEN_CONFIG)
 
 
-def get_jwt_refresh_helper() -> JWT:
+def get_jwt_refresh() -> JWT:
     return JWT(**REFRESH_TOKEN_CONFIG)

@@ -34,7 +34,7 @@ class UserService:
         if not user.is_admin():
             raise PermissionError("Permission denied.")
 
-    def register_user(
+    def create_user(
         self,
         email: str,
         login: str,
@@ -56,49 +56,6 @@ class UserService:
             birthdate,
         )
         return user
-
-    def login_user(
-        self,
-        login: str,
-        password: str,
-    ) -> User:
-        if (user := self._users.get_user_by_login(login)) is None:
-            raise ValueError("User not found.")
-
-        self._assert_valid_password(password, user.password_hash)
-        return user
-
-    def change_user_password(
-        self, user_id: int, old_password: str, new_password: str
-    ) -> None:
-        user = self._require_user(user_id)
-
-        self._assert_valid_password(old_password, user.password_hash)
-
-        user.password_hash = self.password_context.hash(new_password)
-        self._users.save_user(user)
-
-    def change_user_email(
-        self, user_id: int, password: str, email: str
-    ) -> None:
-        user = self._require_user(user_id)
-
-        self._assert_valid_password(password, user.password_hash)
-        self._assert_email_is_unique(email)
-
-        user.email = email
-        self._users.save_user(user)
-
-    def change_user_login(
-        self, user_id: int, password: str, login: str
-    ) -> None:
-        user = self._require_user(user_id)
-
-        self._assert_valid_password(password, user.password_hash)
-        self._assert_login_is_unique(login)
-
-        user.login = login
-        self._users.save_user(user)
 
     def change_user_personal(
         self,
