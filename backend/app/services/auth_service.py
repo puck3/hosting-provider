@@ -1,3 +1,4 @@
+import jwt
 from passlib.context import CryptContext
 
 from app.core.config import CRYPT_CONTEXT_CONFIG
@@ -19,16 +20,16 @@ class AuthService:
         self.jwt_access = jwt_access
         self.jwt_refresh = jwt_refresh
 
-    def _get_token_owner(self, token: str, type: str = "access") -> User:
-        if type == "refresh":
+    def _get_token_owner(self, token: str) -> User:
+        try:
             payload = self.jwt_refresh.validate_token(token)
-        else:
-            payload = self.jwt_access.validate_token(token)
+        except jwt.InvalidTokenError:
+            raise ValueError("Invalid token")
 
         if (user_id := payload.get("user_id")) is None:
-            raise ValueError("Invalid refresh token.")
+            raise ValueError("Invalid refresh token")
         if (user := self._users.get_user_by_id(user_id)) is None:
-            raise ValueError("Token owner not found.")
+            raise ValueError("Token owner not found")
 
         return user
 
@@ -62,19 +63,23 @@ class AuthService:
         self._assert_valid_password(password, user.password_hash)
         return self._create_tokens_pair(user)
 
+    def refresh_tokens(self, refresh_token: str) -> Tokens:
+        user = self._get_token_owner(refresh_token)
+        return self._create_tokens_pair(user)
+
     def change_user_password(
-        self, access_token: str, old_password: str, new_password: str
+        self, refresh_token: str, old_password: str, new_password: str
     ) -> Tokens:
-        user = self._get_token_owner(access_token)
+        user = self._get_token_owner(refresh_token)
         self._assert_valid_password(old_password, user.password_hash)
         user.password_hash = self.password_context.hash(new_password)
         self._users.save_user(user)
         return self._create_tokens_pair(user)
 
     def change_user_email(
-        self, access_token: str, password: str, email: str
+        self, refresh_token: str, password: str, email: str
     ) -> Tokens:
-        user = self._get_token_owner(access_token)
+        user = self._get_token_owner(refresh_token)
         self._assert_valid_password(password, user.password_hash)
         self._assert_email_is_unique(email)
         user.email = email
@@ -82,9 +87,9 @@ class AuthService:
         return self._create_tokens_pair(user)
 
     def change_user_login(
-        self, access_token: str, password: str, login: str
+        self, refresh_token: str, password: str, login: str
     ) -> Tokens:
-        user = self._get_token_owner(access_token)
+        user = self._get_token_owner(refresh_token)
         self._assert_valid_password(password, user.password_hash)
         self._assert_login_is_unique(login)
         user.login = login
