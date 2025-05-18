@@ -24,7 +24,7 @@ async def get_auth_service(
     return services.get_auth_service()
 
 
-@router.get("/login")
+@router.post("/login")
 async def login_user(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     auth: Annotated[AuthService, Depends(get_auth_service)],
@@ -58,7 +58,7 @@ async def refresh_token(
     return Token(access_token=tokens.access_token)
 
 
-@router.patch("/password")
+@router.patch("/refresh/password")
 async def change_user_password(
     refresh_token: Annotated[str, Depends(get_refresh_token)],
     auth: Annotated[AuthService, Depends(get_auth_service)],
@@ -78,7 +78,7 @@ async def change_user_password(
     return Token(access_token=tokens.access_token)
 
 
-@router.patch("/email")
+@router.patch("/refresh/email")
 async def change_user_email(
     refresh_token: Annotated[str, Depends(get_refresh_token)],
     auth: Annotated[AuthService, Depends(get_auth_service)],
@@ -96,7 +96,7 @@ async def change_user_email(
     return Token(access_token=tokens.access_token)
 
 
-@router.patch("/login")
+@router.patch("/refresh/login")
 async def change_user_login(
     refresh_token: Annotated[str, Depends(get_refresh_token)],
     auth: Annotated[AuthService, Depends(get_auth_service)],
