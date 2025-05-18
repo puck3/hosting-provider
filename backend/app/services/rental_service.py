@@ -35,9 +35,12 @@ class RentalService:
     def get_rentals_by_user(self, user_id: int) -> list[Rental]:
         return self._rentals.get_rentals_by_user(user_id)
 
-    def extend_rental(self, rental_id: int) -> Rental:
+    def extend_rental(self, user_id: int, rental_id: int) -> Rental:
         if (rental := self._rentals.get_rental_by_id(rental_id)) is None:
             raise ValueError("Rental not found.")
+
+        if rental.user.user_id != user_id:
+            raise ValueError("Rental does not belong to user.")
 
         if rental.end_at < datetime.now():
             raise ValueError("Rental already ended.")

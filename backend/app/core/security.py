@@ -1,8 +1,9 @@
 from datetime import timedelta, timezone, datetime
 import jwt
+from pydantic import BaseModel
 
 
-class JWT:
+class JWT(BaseModel):
     def __init__(
         self,
         token_type: str,
