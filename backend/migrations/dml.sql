@@ -1,3 +1,4 @@
+TRUNCATE TABLE users;
 INSERT INTO users (
         email,
         login,
@@ -10,7 +11,7 @@ INSERT INTO users (
 VALUES(
         'admin@example.com',
         'admin',
-        '$pbkdf2-sha256$29000$PifkHEOIcW5NaY0xprQ2Jg$ta5FyWlaiyJo26jrNcdTE2tMFSQim5mbgH1oF1LhPa0',
+        "$2b$12$iTmo8adUrhGIMEGcsvm.wOOu2X/H9LP/ah3xW/qO1tSurlrQCJqqK",
         'Администратор',
         NULL,
         NULL,
