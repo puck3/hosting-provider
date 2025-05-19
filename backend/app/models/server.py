@@ -5,8 +5,8 @@ from app.models.hardware import Hardware
 
 
 class Status(str, Enum):
-    available = "Доступен"
-    rented = "В аренде"
+    available = "available"
+    rented = "rented"
 
 
 class Datacenter(BaseModel):

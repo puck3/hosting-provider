@@ -4,9 +4,9 @@ from app.models.hardware import Hardware
 
 
 class BillingPeriod(str, Enum):
-    hourly = "час"
-    daily = "сутки"
-    monthly = "месяц"
+    hourly = "hourly"
+    daily = "daily"
+    monthly = "monthly"
 
 
 class Plan(BaseModel):

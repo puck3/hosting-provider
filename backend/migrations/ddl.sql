@@ -1,10 +1,10 @@
-CREATE TYPE role_type AS ENUM ('Пользователь', 'Администратор');
+CREATE TYPE role_type AS ENUM ('user', 'admin');
 CREATE TABLE IF NOT EXISTS users(
     user_id SERIAL PRIMARY KEY,
     email VARCHAR(255) NOT NULL UNIQUE,
     login VARCHAR(50) NOT NULL UNIQUE,
     password_hash TEXT NOT NULL,
-    role role_type DEFAULT 'Пользователь',
+    role role_type DEFAULT 'user',
     first_name VARCHAR(50),
     last_name VARCHAR(50),
     birthdate DATE
@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS hardwares(
         bandwidth_gbps
     )
 );
-CREATE TYPE status_type AS ENUM ('В аренде', 'Доступен');
+CREATE TYPE status_type AS ENUM ('rented', 'available');
 CREATE TABLE IF NOT EXISTS servers(
     server_id SERIAL PRIMARY KEY,
     status status_type NOT NULL,
@@ -56,7 +56,7 @@ CREATE TABLE IF NOT EXISTS servers(
     hardware_id INTEGER NOT NULL REFERENCES hardwares ON DELETE CASCADE,
     operating_system VARCHAR(50)
 );
-CREATE TYPE billing_period_type AS ENUM('час', 'сутки', 'месяц');
+CREATE TYPE billing_period_type AS ENUM('hourly', 'daily', 'monthly');
 CREATE TABLE IF NOT EXISTS plans(
     plan_id SERIAL PRIMARY KEY,
     plan_name VARCHAR(50) NOT NULL,
@@ -124,7 +124,7 @@ CREATE VIEW available_plans_with_countries AS (
             s.hardware_id
         FROM servers s
             LEFT JOIN datacenters d USING (datacenter_id)
-        WHERE s.status = 'Доступен'
+        WHERE s.status = 'available'
         GROUP BY d.country,
             s.hardware_id
     )

@@ -4,8 +4,8 @@ from enum import Enum
 
 
 class Role(str, Enum):
-    user = "Пользователь"
-    admin = "Администратор"
+    user = "user"
+    admin = "admin"
 
 
 class User(BaseModel):
@@ -22,7 +22,7 @@ class User(BaseModel):
         return self.role == Role.admin
 
     def get_refresh_token_payload(self) -> dict:
-        return {"sub": self.user_id}
+        return {"sub": str(self.user_id)}
 
     def get_access_token_payload(self) -> dict:
-        return {"sub": self.user_id, "role": self.role.value}
+        return {"sub": str(self.user_id), "role": self.role.value}
