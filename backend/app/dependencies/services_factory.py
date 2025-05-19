@@ -15,4 +15,8 @@ def get_services_factory(
     jwt_access: Annotated[JWT, Depends(get_jwt_access)],
     jwt_refresh: Annotated[JWT, Depends(get_jwt_refresh)],
 ) -> ServicesFactory:
-    return ServicesFactory(repositories, jwt_access, jwt_refresh)
+    return ServicesFactory(
+        repositories=repositories,
+        jwt_access=jwt_access,
+        jwt_refresh=jwt_refresh,
+    )

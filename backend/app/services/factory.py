@@ -36,5 +36,7 @@ class ServicesFactory:
 
     def get_auth_service(self):
         return AuthService(
-            self._repositories, self._jwt_access, self._jwt_refresh
+            repositories=self._repositories,
+            jwt_access=self._jwt_access,
+            jwt_refresh=self._jwt_refresh,
         )
