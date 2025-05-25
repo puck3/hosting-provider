@@ -10,6 +10,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY main.py .
 COPY app/ app/
+COPY tests/ tests/
 
 ENTRYPOINT []
 CMD ["python", "main.py"]
