@@ -26,7 +26,7 @@ class AuthService:
         except jwt.InvalidTokenError:
             raise ValueError("Invalid token")
 
-        if (user_id := payload.get("user_id")) is None:
+        if (user_id := payload.get("sub")) is None:
             raise ValueError("Invalid refresh token")
         if (user := self._users.get_user_by_id(user_id)) is None:
             raise ValueError("Token owner not found")
