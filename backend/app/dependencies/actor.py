@@ -21,8 +21,8 @@ def get_actor(
     try:
         payload = jwt_access.validate_token(access_token)
         return Actor(user_id=payload["sub"], role=payload["role"])
-    except Exception:
+    except Exception as e:
         raise HTTPException(
             status_code=HTTP_401_UNAUTHORIZED,
             detail="Invalid token.",
-        )
+        ) from e

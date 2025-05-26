@@ -21,7 +21,7 @@ async def get_hardwares(
         hw_service = services.get_hardware_service()
         return hw_service.get_hardwares()
     except ValueError as e:
-        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e)) from e
 
 
 @router.post("/")
@@ -39,7 +39,7 @@ async def create_hardware(
         hw_service = services.get_hardware_service()
         return hw_service.create_hardware(**hw.model_dump())
     except ValueError as e:
-        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e)) from e
 
 
 @router.delete("/{hardware_id}")
@@ -57,7 +57,7 @@ async def delete_hardware(
         hw_service = services.get_hardware_service()
         hw_service.delete_hardware(hardware_id)
     except ValueError as e:
-        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e)) from e
 
 
 @router.get("/cpus")
@@ -68,7 +68,7 @@ async def get_cpus(
         hw_service = services.get_hardware_service()
         return hw_service.get_cpus()
     except ValueError as e:
-        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e)) from e
 
 
 @router.post("/cpus")
@@ -86,7 +86,7 @@ async def add_cpu(
         hw_service = services.get_hardware_service()
         return hw_service.add_cpu(**cpu.model_dump())
     except ValueError as e:
-        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e)) from e
 
 
 @router.delete("/cpus/{cpu_id}")
@@ -104,7 +104,7 @@ async def delete_cpu(
         hw_service = services.get_hardware_service()
         hw_service.delete_cpu(cpu_id)
     except ValueError as e:
-        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e)) from e
 
 
 @router.get("/gpus")
@@ -115,7 +115,7 @@ async def get_gpus(
         hw_service = services.get_hardware_service()
         return hw_service.get_gpus()
     except ValueError as e:
-        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e)) from e
 
 
 @router.post("/gpus")
@@ -133,7 +133,7 @@ async def add_gpu(
         hw_service = services.get_hardware_service()
         return hw_service.add_gpu(**gpu.model_dump())
     except ValueError as e:
-        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e)) from e
 
 
 @router.delete("/gpus/{gpu_id}")
@@ -151,4 +151,4 @@ async def delete_gpu(
         hw_service = services.get_hardware_service()
         hw_service.delete_gpu(gpu_id)
     except ValueError as e:
-        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e)) from e

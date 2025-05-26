@@ -23,8 +23,8 @@ class AuthService:
     def _get_token_owner(self, token: str) -> User:
         try:
             payload = self.jwt_refresh.validate_token(token)
-        except jwt.InvalidTokenError:
-            raise ValueError("Invalid token")
+        except jwt.InvalidTokenError as e:
+            raise ValueError("Invalid token") from e
 
         if (user_id := payload.get("sub")) is None:
             raise ValueError("Invalid refresh token")
@@ -67,18 +67,14 @@ class AuthService:
         user = self._get_token_owner(refresh_token)
         return self._create_tokens_pair(user)
 
-    def change_user_password(
-        self, refresh_token: str, old_password: str, new_password: str
-    ) -> Tokens:
+    def change_user_password(self, refresh_token: str, old_password: str, new_password: str) -> Tokens:
         user = self._get_token_owner(refresh_token)
         self._assert_valid_password(old_password, user.password_hash)
         user.password_hash = self.password_context.hash(new_password)
         self._users.save_user(user)
         return self._create_tokens_pair(user)
 
-    def change_user_email(
-        self, refresh_token: str, password: str, email: str
-    ) -> Tokens:
+    def change_user_email(self, refresh_token: str, password: str, email: str) -> Tokens:
         user = self._get_token_owner(refresh_token)
         self._assert_valid_password(password, user.password_hash)
         self._assert_email_is_unique(email)
@@ -86,9 +82,7 @@ class AuthService:
         self._users.save_user(user)
         return self._create_tokens_pair(user)
 
-    def change_user_login(
-        self, refresh_token: str, password: str, login: str
-    ) -> Tokens:
+    def change_user_login(self, refresh_token: str, password: str, login: str) -> Tokens:
         user = self._get_token_owner(refresh_token)
         self._assert_valid_password(password, user.password_hash)
         self._assert_login_is_unique(login)

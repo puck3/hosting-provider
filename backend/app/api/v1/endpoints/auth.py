@@ -33,11 +33,9 @@ async def login_user(
     try:
         tokens = auth.login_user(form_data.username, form_data.password)
     except ValueError as e:
-        raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e))
+        raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e)) from e
 
-    response.set_cookie(
-        key="refresh_token", value=tokens.refresh_token, httponly=True
-    )
+    response.set_cookie(key="refresh_token", value=tokens.refresh_token, httponly=True)
     return Token(access_token=tokens.access_token)
 
 
@@ -50,11 +48,9 @@ async def refresh_token(
     try:
         tokens = auth.refresh_tokens(refresh_token)
     except ValueError as e:
-        raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e))
+        raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e)) from e
 
-    response.set_cookie(
-        key="refresh_token", value=tokens.refresh_token, httponly=True
-    )
+    response.set_cookie(key="refresh_token", value=tokens.refresh_token, httponly=True)
     return Token(access_token=tokens.access_token)
 
 
@@ -66,15 +62,11 @@ async def change_user_password(
     password: ChangePassword,
 ) -> Token:
     try:
-        tokens = auth.change_user_password(
-            refresh_token, **password.model_dump()
-        )
+        tokens = auth.change_user_password(refresh_token, **password.model_dump())
     except ValueError as e:
-        raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e))
+        raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e)) from e
 
-    response.set_cookie(
-        key="refresh_token", value=tokens.refresh_token, httponly=True
-    )
+    response.set_cookie(key="refresh_token", value=tokens.refresh_token, httponly=True)
     return Token(access_token=tokens.access_token)
 
 
@@ -88,11 +80,9 @@ async def change_user_email(
     try:
         tokens = auth.change_user_email(refresh_token, **email.model_dump())
     except ValueError as e:
-        raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e))
+        raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e)) from e
 
-    response.set_cookie(
-        key="refresh_token", value=tokens.refresh_token, httponly=True
-    )
+    response.set_cookie(key="refresh_token", value=tokens.refresh_token, httponly=True)
     return Token(access_token=tokens.access_token)
 
 
@@ -106,9 +96,7 @@ async def change_user_login(
     try:
         tokens = auth.change_user_login(refresh_token, **login.model_dump())
     except ValueError as e:
-        raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e))
+        raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e)) from e
 
-    response.set_cookie(
-        key="refresh_token", value=tokens.refresh_token, httponly=True
-    )
+    response.set_cookie(key="refresh_token", value=tokens.refresh_token, httponly=True)
     return Token(access_token=tokens.access_token)

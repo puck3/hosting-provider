@@ -21,7 +21,7 @@ async def get_plans(
         plan_service = services.get_plan_service()
         return plan_service.get_plans()
     except ValueError as e:
-        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e)) from e
 
 
 @router.get("/available/{country}")
@@ -33,7 +33,7 @@ async def get_available_plans_by_country(
         plan_service = services.get_plan_service()
         return plan_service.get_available_plans_by_country(country)
     except ValueError as e:
-        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e)) from e
 
 
 @router.post("/")
@@ -51,7 +51,7 @@ async def add_plan(
         plan_service = services.get_plan_service()
         return plan_service.add_plan(**plan.model_dump())
     except ValueError as e:
-        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e)) from e
 
 
 @router.delete("/{plan_id}")
@@ -69,4 +69,4 @@ async def delete_plan(
         plan_service = services.get_plan_service()
         plan_service.delete_plan(plan_id)
     except ValueError as e:
-        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e))
+        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e)) from e

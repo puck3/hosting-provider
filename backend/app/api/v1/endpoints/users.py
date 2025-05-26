@@ -77,9 +77,7 @@ async def change_user_personal(
 ) -> None:
     if actor.user_id != user_id:
         raise HTTPException(HTTP_403_FORBIDDEN)
-    return user_service.change_user_personal(
-        user_id=user_id, **personal.model_dump()
-    )
+    return user_service.change_user_personal(user_id=user_id, **personal.model_dump())
 
 
 @router.patch("/role/{email}")
@@ -90,7 +88,5 @@ async def change_user_role_by_email(
     actor: Annotated[Actor, Depends(get_actor)],
 ) -> None:
     if actor.role != Role.admin:
-        raise HTTPException(
-            HTTP_403_FORBIDDEN, detail="Only admin can change role."
-        )
+        raise HTTPException(HTTP_403_FORBIDDEN, detail="Only admin can change role.")
     return user_service.change_user_role_by_email(email=email, role=role)
