@@ -1,10 +1,11 @@
-from fastapi import Depends
-from psycopg2.pool import SimpleConnectionPool
 from typing import Annotated
 
+from fastapi import Depends
+from psycopg2.pool import SimpleConnectionPool
+
 from app.db.connector import get_connection_pool
-from app.services.repositories_abc import RepositoriesFactoryABC
 from app.db.factory import RepositoriesFactory
+from app.services.repositories_abc import RepositoriesFactoryABC
 
 
 def get_repositories_factory(

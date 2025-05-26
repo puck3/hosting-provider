@@ -1,7 +1,8 @@
 from typing import Annotated
+
 from fastapi import APIRouter, Depends, Response
-from fastapi.security import OAuth2PasswordRequestForm
 from fastapi.exceptions import HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from starlette.status import HTTP_401_UNAUTHORIZED
 
 from app.api.v1.schemas.token import Token
@@ -13,7 +14,6 @@ from app.api.v1.schemas.user import (
 from app.dependencies.jwt import get_refresh_token
 from app.dependencies.services_factory import get_services_factory
 from app.services.factory import AuthService, ServicesFactory
-
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 

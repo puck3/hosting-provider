@@ -1,4 +1,4 @@
-from app.models.hardware import Hardware, CPU, GPU
+from app.models.hardware import CPU, GPU, Hardware
 from app.services.repositories_abc import RepositoriesFactoryABC
 
 

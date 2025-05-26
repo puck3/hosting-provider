@@ -1,8 +1,9 @@
 from datetime import date
+
 from passlib.context import CryptContext
 
 from app.core.config import CRYPT_CONTEXT_CONFIG
-from app.models.user import User, Role
+from app.models.user import Role, User
 from app.services.repositories_abc import RepositoriesFactoryABC
 
 

@@ -1,10 +1,6 @@
 from fastapi import APIRouter
-from . import hardwares
-from . import plans
-from . import rentals
-from . import servers
-from . import users
-from . import auth
+
+from . import auth, hardwares, plans, rentals, servers, users
 
 router = APIRouter()
 

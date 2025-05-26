@@ -1,13 +1,14 @@
 from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 from starlette.status import HTTP_400_BAD_REQUEST
 
 from app.api.v1.schemas.hardware import CreateCPU, CreateGPU, CreateHardware
 from app.dependencies.actor import Actor, get_actor
 from app.dependencies.services_factory import get_services_factory
+from app.models.hardware import CPU, GPU, Hardware
 from app.models.user import Role
 from app.services.factory import ServicesFactory
-from app.models.hardware import CPU, GPU, Hardware
 
 router = APIRouter(prefix="/hardwares", tags=["Hardwares"])
 

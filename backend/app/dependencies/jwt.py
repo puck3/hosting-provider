@@ -1,9 +1,10 @@
 from typing import Annotated
+
 from fastapi import Cookie, Depends
 from fastapi.security import HTTPBearer, OAuth2PasswordBearer
+
 from app.core.config import ACCESS_TOKEN_CONFIG, REFRESH_TOKEN_CONFIG
 from app.core.security import JWT
-
 
 access_scheme = OAuth2PasswordBearer(
     tokenUrl="/auth/login",

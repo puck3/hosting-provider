@@ -1,7 +1,8 @@
+from collections.abc import Generator
 from contextlib import contextmanager
-from typing import Generator
-from psycopg2.pool import SimpleConnectionPool
+
 from psycopg2.extensions import connection
+from psycopg2.pool import SimpleConnectionPool
 
 
 class BaseRepository:
@@ -12,7 +13,7 @@ class BaseRepository:
         self.__pool = pool
 
     @contextmanager
-    def _get_connection(self) -> Generator[connection, None, None]:
+    def _get_connection(self) -> Generator[connection]:
         conn = self.__pool.getconn()
         try:
             yield conn

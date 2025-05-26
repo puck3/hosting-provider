@@ -1,7 +1,9 @@
-from pydantic import BaseModel
 from datetime import datetime, timedelta
-from app.models.server import Server
+
+from pydantic import BaseModel
+
 from app.models.plan import BillingPeriod
+from app.models.server import Server
 
 
 class UserData(BaseModel):

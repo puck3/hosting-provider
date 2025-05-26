@@ -1,13 +1,14 @@
 from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 from starlette.status import HTTP_400_BAD_REQUEST
 
 from app.api.v1.schemas.plan import CreatePlan
 from app.dependencies.actor import Actor, get_actor
-from app.models.user import Role
-from app.services.factory import ServicesFactory
 from app.dependencies.services_factory import get_services_factory
 from app.models.plan import Plan
+from app.models.user import Role
+from app.services.factory import ServicesFactory
 
 router = APIRouter(prefix="/plans", tags=["Plans"])
 

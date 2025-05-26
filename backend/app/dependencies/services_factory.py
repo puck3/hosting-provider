@@ -1,6 +1,7 @@
 from typing import Annotated
 
 from fastapi import Depends
+
 from app.core.security import JWT
 from app.dependencies.jwt import get_jwt_access, get_jwt_refresh
 from app.dependencies.repositories_factory import get_repositories_factory

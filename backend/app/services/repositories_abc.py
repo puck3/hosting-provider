@@ -5,7 +5,7 @@ from app.models.hardware import CPU, GPU, Hardware
 from app.models.plan import BillingPeriod, Plan
 from app.models.rental import Rental
 from app.models.server import Datacenter, Server, Status
-from app.models.user import User, Role
+from app.models.user import Role, User
 
 
 class UserRepositoryABC(ABC):

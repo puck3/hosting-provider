@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from app.models.rental import Rental
 from app.services.repositories_abc import RepositoriesFactoryABC
 

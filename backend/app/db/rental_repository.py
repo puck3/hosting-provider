@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta
+
 from psycopg2.extras import RealDictCursor
 
 from app.db.base import BaseRepository

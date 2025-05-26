@@ -1,4 +1,5 @@
 from typing import Annotated
+
 from fastapi import Depends, HTTPException
 from pydantic import BaseModel
 from starlette.status import HTTP_401_UNAUTHORIZED

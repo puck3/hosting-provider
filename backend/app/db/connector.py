@@ -1,6 +1,6 @@
 from psycopg2.pool import SimpleConnectionPool
-from app.core.config import DB_CONFIG, POOL_MIN_CONN, POOL_MAX_CONN
 
+from app.core.config import DB_CONFIG, POOL_MAX_CONN, POOL_MIN_CONN
 
 _pool: SimpleConnectionPool | None = None
 

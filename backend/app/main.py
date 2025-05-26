@@ -1,9 +1,10 @@
 from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from uvicorn import run
 
 from app.api.v1.endpoints import router as router_v1
-from app.db.connector import initialize_connection, close_connection_pool
+from app.db.connector import close_connection_pool, initialize_connection
 
 
 @asynccontextmanager

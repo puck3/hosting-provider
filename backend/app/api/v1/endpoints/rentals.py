@@ -1,4 +1,5 @@
 from typing import Annotated
+
 from fastapi import APIRouter, Depends, HTTPException
 from starlette.status import HTTP_400_BAD_REQUEST
 
@@ -7,8 +8,8 @@ from app.dependencies.actor import Actor, get_actor
 from app.dependencies.services_factory import get_services_factory
 from app.models.rental import Rental
 from app.models.user import Role
-from app.services.rental_service import RentalService
 from app.services.factory import ServicesFactory
+from app.services.rental_service import RentalService
 
 router = APIRouter(prefix="/rentals", tags=["Rentals"])
 

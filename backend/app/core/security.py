@@ -1,4 +1,5 @@
-from datetime import timedelta, timezone, datetime
+from datetime import UTC, datetime, timedelta
+
 import jwt
 from pydantic import BaseModel
 
@@ -27,7 +28,7 @@ class JWT(BaseModel):
 
     def _calculate_expire(self):
         delta = timedelta(minutes=self._expires_delta_minutes)
-        now = datetime.now(timezone.utc)
+        now = datetime.now(UTC)
         return now + delta
 
     def _create_payload(self, data: dict, expire: datetime) -> dict:

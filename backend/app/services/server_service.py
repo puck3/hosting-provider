@@ -1,4 +1,4 @@
-from app.models.server import Server, Status, Datacenter
+from app.models.server import Datacenter, Server, Status
 from app.services.repositories_abc import RepositoriesFactoryABC
 
 

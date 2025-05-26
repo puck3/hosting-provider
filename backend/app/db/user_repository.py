@@ -1,8 +1,10 @@
-from psycopg2.extras import RealDictCursor
 from datetime import date
+
+from psycopg2.extras import RealDictCursor
+
 from app.db.base import BaseRepository
+from app.models.user import Role, User
 from app.services.repositories_abc import UserRepositoryABC
-from app.models.user import User, Role
 
 
 class UserRepository(BaseRepository, UserRepositoryABC):
