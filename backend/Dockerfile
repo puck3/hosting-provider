@@ -1,16 +1,22 @@
-FROM python:3.13-alpine@sha256:452682e4648deafe431ad2f2391d726d7c52f0ff291be8bd4074b10379bb89ff
+FROM ghcr.io/astral-sh/uv:python3.13-alpine
 
 RUN apk update && \
     apk add --no-cache bash build-base libpq-dev
 
 WORKDIR /app
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml .
+COPY uv.lock .
+RUN uv venv && \ 
+    uv sync --locked
+
+ENV PATH="/app/.venv/bin:$PATH"
+
 
 COPY main.py .
 COPY app/ app/
-COPY tests/ tests/
+
+EXPOSE 8000
 
 ENTRYPOINT []
 CMD ["python", "main.py"]
