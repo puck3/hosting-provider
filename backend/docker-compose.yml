@@ -1,0 +1,40 @@
+services:
+  backend:
+    build: .
+    container_name: hosting-provider-backend
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    volumes:
+      - ./tests:/app/tests
+    networks:
+      - hosting-provider-network
+
+  db:
+    image: postgres:17
+    container_name: hosting-provider-db
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    networks:
+      - hosting-provider-network
+
+volumes:
+  db-data:
+
+
+networks:
+  hosting-provider-network:
+    driver: bridge
