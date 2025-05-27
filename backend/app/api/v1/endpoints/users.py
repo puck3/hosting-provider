@@ -2,17 +2,13 @@ from typing import Annotated
 
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import EmailStr
-from starlette.status import HTTP_403_FORBIDDEN
+from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 
 from app.api.v1.endpoints.servers import assert_is_admin
-from app.api.v1.schemas.user import (
-    CreateUser,
-    DeleteUser,
-    Personal,
-)
+from app.api.v1.schemas.user import CreateUser, DeleteUser, Personal, ReadUser
 from app.dependencies.actor import Actor, get_actor
 from app.dependencies.services_factory import get_services_factory
-from app.models.user import Role, User
+from app.models.user import Role
 from app.services.factory import ServicesFactory
 from app.services.user_service import UserService
 
@@ -25,13 +21,23 @@ async def get_user_service(
     return services.get_user_service()
 
 
+@router.get("/self")
+async def get_self(
+    user_service: Annotated[UserService, Depends(get_user_service)], actor: Annotated[Actor, Depends(get_actor)]
+) -> ReadUser:
+    user = user_service.get_user_by_id(actor.user_id)
+    if user is None:
+        raise HTTPException(HTTP_404_NOT_FOUND, detail="User not found.")
+    return ReadUser.from_user(user)
+
+
 @router.get("/")
 async def get_users(
     user_service: Annotated[UserService, Depends(get_user_service)],
     actor: Annotated[Actor, Depends(get_actor)],
-) -> list[User]:
+) -> list[ReadUser]:
     assert_is_admin(actor, "Only admin can get users.")
-    return user_service.get_users()
+    return [ReadUser.from_user(user) for user in user_service.get_users()]
 
 
 @router.get("/{user_id}")
@@ -39,13 +45,15 @@ async def get_user_by_id(
     user_id: int,
     user_service: Annotated[UserService, Depends(get_user_service)],
     actor: Annotated[Actor, Depends(get_actor)],
-) -> User | None:
+) -> ReadUser:
     if (actor.user_id != user_id) and (actor.role != Role.admin):
         raise HTTPException(
             HTTP_403_FORBIDDEN,
             detail="Only owner or admin can get user by id.",
         )
-    return user_service.get_user_by_id(user_id)
+    if (user := user_service.get_user_by_id(user_id)) is None:
+        raise HTTPException(HTTP_404_NOT_FOUND, detail="User not found.")
+    return ReadUser.from_user(user)
 
 
 @router.delete("/{user_id}")
@@ -64,8 +72,9 @@ async def delete_user(
 async def register_user(
     user: CreateUser,
     user_service: Annotated[UserService, Depends(get_user_service)],
-) -> User:
-    return user_service.create_user(**user.model_dump())
+) -> ReadUser:
+    new_user = user_service.create_user(**user.model_dump())
+    return ReadUser.from_user(new_user)
 
 
 @router.patch("/{user_id}/personal")

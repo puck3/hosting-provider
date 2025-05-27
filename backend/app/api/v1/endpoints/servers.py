@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from starlette.status import HTTP_403_FORBIDDEN
 
-from app.api.v1.schemas.server import CreateDatacenter, CreateServer
+from app.api.v1.schemas.server import Country, CreateDatacenter, CreateServer
 from app.dependencies.actor import Actor, get_actor
 from app.dependencies.services_factory import get_services_factory
 from app.models.server import Datacenter, Server, Status
@@ -90,6 +90,13 @@ async def get_datacenters(
     server_service: Annotated[ServerService, Depends(get_server_service)],
 ) -> list[Datacenter]:
     return server_service.get_datacenters()
+
+
+@datacenters_router.get("/countries")
+async def get_countries(server_service: Annotated[ServerService, Depends(get_server_service)]) -> list[Country]:
+    datacenters = server_service.get_datacenters()
+    countries = {datacenter.country for datacenter in datacenters}
+    return [Country(country_name=country) for country in countries]
 
 
 @datacenters_router.post("/")
