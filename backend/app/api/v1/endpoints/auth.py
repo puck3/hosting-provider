@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends
 from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette.status import HTTP_401_UNAUTHORIZED
@@ -28,37 +28,32 @@ async def get_auth_service(
 async def login_user(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     auth: Annotated[AuthService, Depends(get_auth_service)],
-    response: Response,
 ) -> Token:
     try:
         tokens = auth.login_user(form_data.username, form_data.password)
     except ValueError as e:
         raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e)) from e
 
-    response.set_cookie(key="refresh_token", value=tokens.refresh_token, httponly=True)
-    return Token(access_token=tokens.access_token)
+    return Token(access_token=tokens.access_token, refresh_token=tokens.refresh_token)
 
 
 @router.get("/refresh")
 async def refresh_token(
     refresh_token: Annotated[str, Depends(get_refresh_token)],
     auth: Annotated[AuthService, Depends(get_auth_service)],
-    response: Response,
 ) -> Token:
     try:
         tokens = auth.refresh_tokens(refresh_token)
     except ValueError as e:
         raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e)) from e
 
-    response.set_cookie(key="refresh_token", value=tokens.refresh_token, httponly=True)
-    return Token(access_token=tokens.access_token)
+    return Token(access_token=tokens.access_token, refresh_token=tokens.refresh_token)
 
 
 @router.patch("/refresh/password")
 async def change_user_password(
     refresh_token: Annotated[str, Depends(get_refresh_token)],
     auth: Annotated[AuthService, Depends(get_auth_service)],
-    response: Response,
     password: ChangePassword,
 ) -> Token:
     try:
@@ -66,15 +61,13 @@ async def change_user_password(
     except ValueError as e:
         raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e)) from e
 
-    response.set_cookie(key="refresh_token", value=tokens.refresh_token, httponly=True)
-    return Token(access_token=tokens.access_token)
+    return Token(access_token=tokens.access_token, refresh_token=tokens.refresh_token)
 
 
 @router.patch("/refresh/email")
 async def change_user_email(
     refresh_token: Annotated[str, Depends(get_refresh_token)],
     auth: Annotated[AuthService, Depends(get_auth_service)],
-    response: Response,
     email: ChangeEmail,
 ) -> Token:
     try:
@@ -82,15 +75,13 @@ async def change_user_email(
     except ValueError as e:
         raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e)) from e
 
-    response.set_cookie(key="refresh_token", value=tokens.refresh_token, httponly=True)
-    return Token(access_token=tokens.access_token)
+    return Token(access_token=tokens.access_token, refresh_token=tokens.refresh_token)
 
 
 @router.patch("/refresh/login")
 async def change_user_login(
     refresh_token: Annotated[str, Depends(get_refresh_token)],
     auth: Annotated[AuthService, Depends(get_auth_service)],
-    response: Response,
     login: ChangeLogin,
 ) -> Token:
     try:
@@ -98,5 +89,4 @@ async def change_user_login(
     except ValueError as e:
         raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e)) from e
 
-    response.set_cookie(key="refresh_token", value=tokens.refresh_token, httponly=True)
-    return Token(access_token=tokens.access_token)
+    return Token(access_token=tokens.access_token, refresh_token=tokens.refresh_token)
