@@ -1,6 +1,6 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Form
 from fastapi.exceptions import HTTPException
 from fastapi.security import OAuth2PasswordRequestForm
 from starlette.status import HTTP_401_UNAUTHORIZED
@@ -39,9 +39,12 @@ async def login_user(
 
 @router.get("/refresh")
 async def refresh_token(
-    refresh_token: Annotated[str, Depends(get_refresh_token)],
     auth: Annotated[AuthService, Depends(get_auth_service)],
+    grant_type: str = Form(...),
+    refresh_token: str = Form(...),
 ) -> Token:
+    if grant_type != "refresh_token":
+        raise HTTPException(status_code=400, detail="Unsupported grant_type")
     try:
         tokens = auth.refresh_tokens(refresh_token)
     except ValueError as e:
