@@ -5,7 +5,7 @@ from pydantic import EmailStr
 from starlette.status import HTTP_403_FORBIDDEN, HTTP_404_NOT_FOUND
 
 from app.api.v1.endpoints.servers import assert_is_admin
-from app.api.v1.schemas.user import CreateUser, DeleteUser, Personal, ReadUser
+from app.api.v1.schemas.user import ChangeRole, CreateUser, DeleteUser, Personal, ReadUser
 from app.dependencies.actor import Actor, get_actor
 from app.dependencies.services_factory import get_services_factory
 from app.models.user import Role
@@ -92,10 +92,10 @@ async def change_user_personal(
 @router.patch("/role/{email}")
 async def change_user_role_by_email(
     email: EmailStr,
-    role: Role,
+    role: ChangeRole,
     user_service: Annotated[UserService, Depends(get_user_service)],
     actor: Annotated[Actor, Depends(get_actor)],
 ) -> None:
     if actor.role != Role.admin:
         raise HTTPException(HTTP_403_FORBIDDEN, detail="Only admin can change role.")
-    return user_service.change_user_role_by_email(email=email, role=role)
+    return user_service.change_user_role_by_email(email=email, **role.model_dump())

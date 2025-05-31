@@ -44,6 +44,10 @@ class DeleteUser(BaseModel):
     password: str
 
 
+class ChangeRole(BaseModel):
+    role: Role
+
+
 class ReadUser(BaseModel):
     user_id: int
     email: str

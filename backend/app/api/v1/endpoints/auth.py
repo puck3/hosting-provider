@@ -40,11 +40,8 @@ async def login_user(
 @router.get("/refresh")
 async def refresh_token(
     auth: Annotated[AuthService, Depends(get_auth_service)],
-    grant_type: str = Form(...),
     refresh_token: str = Form(...),
 ) -> Token:
-    if grant_type != "refresh_token":
-        raise HTTPException(status_code=400, detail="Unsupported grant_type")
     try:
         tokens = auth.refresh_tokens(refresh_token)
     except ValueError as e:

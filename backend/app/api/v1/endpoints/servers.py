@@ -3,7 +3,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, HTTPException
 from starlette.status import HTTP_403_FORBIDDEN
 
-from app.api.v1.schemas.server import Country, CreateDatacenter, CreateServer
+from app.api.v1.schemas.server import ChangeStatus, Country, CreateDatacenter, CreateServer
 from app.dependencies.actor import Actor, get_actor
 from app.dependencies.services_factory import get_services_factory
 from app.models.server import Datacenter, Server, Status
@@ -53,17 +53,6 @@ async def delete_server(
     server_service.delete_server(server_id)
 
 
-@servers_router.patch("/{server_id}/status")
-async def change_server_status(
-    server_id: int,
-    status: Status,
-    server_service: Annotated[ServerService, Depends(get_server_service)],
-    actor: Annotated[Actor, Depends(get_actor)],
-) -> None:
-    assert_is_admin(actor, "Only admin can change server status.")
-    server_service.change_server_status(server_id, status)
-
-
 @servers_router.patch("/release")
 async def release_servers(
     server_service: Annotated[ServerService, Depends(get_server_service)],
@@ -80,6 +69,17 @@ async def fix_servers_status(
 ) -> None:
     assert_is_admin(actor, "Only admin can fix servers status.")
     server_service.fix_servers_status()
+
+
+@servers_router.patch("/{server_id}/status")
+async def change_server_status(
+    server_id: int,
+    status: ChangeStatus,
+    server_service: Annotated[ServerService, Depends(get_server_service)],
+    actor: Annotated[Actor, Depends(get_actor)],
+) -> None:
+    assert_is_admin(actor, "Only admin can change server status.")
+    server_service.change_server_status(server_id, **status.model_dump())
 
 
 datacenters_router = APIRouter(prefix="/datacenters", tags=["Datacenters"])

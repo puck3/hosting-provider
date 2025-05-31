@@ -18,3 +18,7 @@ class CreateDatacenter(BaseModel):
 
 class Country(BaseModel):
     country_name: str
+
+
+class ChangeStatus(BaseModel):
+    status: Status
