@@ -3,15 +3,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-DB_CONFIG = {
-    "dbname": os.getenv("DB_NAME"),
-    "user": os.getenv("DB_USER"),
-    "password": os.getenv("DB_PASSWORD"),
-    "host": os.getenv("DB_HOST"),
-    "port": os.getenv("DB_PORT"),
+BACKEND_CONFIG = {
+    "backend_host": os.getenv("BACKEND_HOST", "localhost"),
+    "backend_port": os.getenv("BACKEND_PORT", "8000"),
 }
 
-POOL_MIN_CONN = int(os.getenv("POOL_MIN_CONN", 1))
-POOL_MAX_CONN = int(os.getenv("POOL_MAX_CONN", 10))
-
-CRYPT_CONTEXT_CONFIG = {"schemes": ["pbkdf2_sha256"], "deprecated": "auto"}
+BACKEND_URL = f"http://{BACKEND_CONFIG['backend_host']}:{BACKEND_CONFIG['backend_port']}"

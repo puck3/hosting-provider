@@ -1,11 +1,18 @@
-from app.models.plan import BillingPeriod, Plan
-from app.services.repositories_abc import RepositoriesFactoryABC
+from src.models.plan import BillingPeriod, Plan
+from src.utils.auth_client import Client
 
 
 class PlanService:
-    def __init__(self, repositories: RepositoriesFactoryABC) -> None:
-        self._plans = repositories.get_plan_repository()
-        self._hardwares = repositories.get_hardware_repository()
+    def __init__(self, client: Client):
+        self.client = client
+
+    def get_plans(self) -> list[Plan]:
+        response = self.client.request("GET", "/plans")
+        return [Plan.model_validate(plan) for plan in response]
+
+    def get_available_plans_by_country(self, country: str) -> list[Plan]:
+        response = self.client.request("GET", f"/plans/available/{country}")
+        return [Plan.model_validate(plan) for plan in response]
 
     def add_plan(
         self,
@@ -15,28 +22,16 @@ class PlanService:
         plan_name: str,
         plan_description: str,
     ) -> Plan:
-        if self._plans.get_plan_by_name(plan_name) is not None:
-            raise ValueError("Plan already exists")
+        body = {
+            "hardware_id": hardware_id,
+            "price": price,
+            "billing_period": billing_period.value,
+            "plan_name": plan_name,
+            "plan_description": plan_description,
+        }
 
-        if (
-            hardware := self._hardwares.get_hardware_by_id(hardware_id)
-        ) is None:
-            raise ValueError("Hardware not found.")
-
-        plan = self._plans.create_plan(
-            hardware,
-            price,
-            billing_period,
-            plan_name,
-            plan_description,
-        )
-        return plan
+        response = self.client.protected_request("POST", "/plans", json=body)
+        return Plan.model_validate(response)
 
     def delete_plan(self, plan_id: int) -> None:
-        self._plans.delete_plan(plan_id)
-
-    def get_plans(self):
-        return self._plans.get_plans()
-
-    def get_available_plans_by_country(self, country: str) -> list[Plan]:
-        return self._plans.get_available_plans_by_country(country)
+        self.client.protected_request("DELETE", f"/plans/{plan_id}")

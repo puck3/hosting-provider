@@ -1,51 +1,27 @@
-from datetime import datetime
-
-from app.models.rental import Rental
-from app.services.repositories_abc import RepositoriesFactoryABC
+from src.models.rental import Rental
+from src.utils.auth_client import Client
 
 
 class RentalService:
-    def __init__(self, repositories: RepositoriesFactoryABC) -> None:
-        self._rentals = repositories.get_rental_repository()
-        self._users = repositories.get_user_repository()
-        self._servers = repositories.get_server_repository()
-        self._plans = repositories.get_plan_repository()
-
-    def create_rental(self, user_id: int, plan_id: int, country: str) -> Rental:
-        if (user := self._users.get_user_by_id(user_id)) is None:
-            raise ValueError("User not found.")
-
-        if (plan := self._plans.get_plan_by_id(plan_id)) is None:
-            raise ValueError("Plan not found.")
-
-        server_id = self._servers.reserve_server(
-            plan.hardware.hardware_id, country
-        )
-
-        if (server := self._servers.get_server_by_id(server_id)) is None:
-            raise ValueError("Server not found.")
-
-        rental = self._rentals.create_rental(
-            user, server, plan.price, plan.billing_period
-        )
-        return rental
+    def __init__(self, client: Client) -> None:
+        self.client = client
 
     def get_rentals(self) -> list[Rental]:
-        return self._rentals.get_rentals()
+        response = self.client.protected_request("GET", "/rentals")
+        return [Rental.model_validate(rental) for rental in response]
 
     def get_rentals_by_user(self, user_id: int) -> list[Rental]:
-        return self._rentals.get_rentals_by_user(user_id)
+        response = self.client.protected_request("GET", f"/rentals/user/{user_id}")
+        return [Rental.model_validate(rental) for rental in response]
 
-    def extend_rental(self, user_id: int, rental_id: int) -> Rental:
-        if (rental := self._rentals.get_rental_by_id(rental_id)) is None:
-            raise ValueError("Rental not found.")
+    def create_rental(self, plan_id: int, country: str) -> Rental:
+        body = {
+            "plan_id": plan_id,
+            "country": country,
+        }
+        response = self.client.protected_request("POST", "/rentals", json=body)
+        return Rental.model_validate(response)
 
-        if rental.user.user_id != user_id:
-            raise ValueError("Rental does not belong to user.")
-
-        if rental.end_at < datetime.now():
-            raise ValueError("Rental already ended.")
-
-        rental.extend()
-        self._rentals.save_rental(rental)
-        return rental
+    def extend_rental(self, rental_id: int) -> Rental:
+        response = self.client.protected_request("PATCH", f"/rentals/{rental_id}/extend")
+        return Rental.model_validate(response)

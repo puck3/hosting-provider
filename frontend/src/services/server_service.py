@@ -1,28 +1,14 @@
-from app.models.server import Datacenter, Server, Status
-from app.services.repositories_abc import RepositoriesFactoryABC
+from src.models.server import Datacenter, Server, Status
+from src.utils.auth_client import Client
 
 
 class ServerService:
-    def __init__(self, repositories: RepositoriesFactoryABC) -> None:
-        self._servers = repositories.get_server_repository()
-        self._hardwares = repositories.get_hardware_repository()
+    def __init__(self, client: Client) -> None:
+        self.client = client
 
-    def add_datacenter(
-        self, datacenter_name: str, country: str, city: str
-    ) -> Datacenter:
-        if self._servers.get_datacenter_by_name(datacenter_name) is not None:
-            raise ValueError("Datacenter already exists.")
-
-        datacenter = self._servers.create_datacenter(
-            datacenter_name, country, city
-        )
-        return datacenter
-
-    def delete_datacenter(self, datacenter_id: int) -> None:
-        self._servers.delete_datacenter(datacenter_id)
-
-    def get_datacenters(self) -> list[Datacenter]:
-        return self._servers.get_datacenters()
+    def get_servers(self) -> list[Server]:
+        response = self.client.request("GET", "/servers")
+        return [Server.model_validate(server) for server in response]
 
     def create_server(
         self,
@@ -31,36 +17,43 @@ class ServerService:
         status: Status,
         operating_system: str,
     ) -> Server:
-        if (
-            datacenter := self._servers.get_datacenter_by_id(datacenter_id)
-        ) is None:
-            raise ValueError("Datacenter not found.")
-
-        if (
-            hardware := self._hardwares.get_hardware_by_id(hardware_id)
-        ) is None:
-            raise ValueError("Hardware not found.")
-
-        server = self._servers.create_server(
-            datacenter, hardware, status, operating_system
-        )
-        return server
+        body = {
+            "datacenter_id": datacenter_id,
+            "hardware_id": hardware_id,
+            "status": status,
+            "operating_system": operating_system,
+        }
+        response = self.client.protected_request("POST", "/servers", json=body)
+        return Server.model_validate(response)
 
     def delete_server(self, server_id: int) -> None:
-        self._servers.delete_server(server_id)
-
-    def change_server_status(self, server_id: int, status: Status) -> None:
-        if (server := self._servers.get_server_by_id(server_id)) is None:
-            raise ValueError("Server not found.")
-
-        server.status = status
-        self._servers.save_server(server)
-
-    def get_servers(self) -> list[Server]:
-        return self._servers.get_servers()
+        self.client.protected_request("DELETE", f"/servers/{server_id}")
 
     def release_servers(self) -> None:
-        self._servers.release_servers()
+        self.client.protected_request("PATCH", "/servers/release")
 
     def fix_servers_status(self) -> None:
-        self._servers.fix_servers_status()
+        self.client.protected_request("PATCH", "/servers/fix_status")
+
+    def change_server_status(self, server_id: int, status: Status) -> None:
+        self.client.protected_request("PATCH", f"/servers/{server_id}", json={"status": status})
+
+    def get_datacenters(self) -> list[Datacenter]:
+        response = self.client.request("GET", "/datacenters")
+        return [Datacenter.model_validate(datacenter) for datacenter in response]
+
+    def get_countries(self) -> list[str]:
+        response = self.client.request("GET", "/datacenters/countries")
+        return [country["country_name"] for country in response]
+
+    def add_datacenter(self, datacenter_name: str, country: str, city: str) -> Datacenter:
+        body = {
+            "datacenter_name": datacenter_name,
+            "country": country,
+            "city": city,
+        }
+        response = self.client.protected_request("POST", "/datacenters", json=body)
+        return Datacenter.model_validate(response)
+
+    def delete_datacenter(self, datacenter_id: int) -> None:
+        self.client.protected_request("DELETE", f"/datacenters/{datacenter_id}")
