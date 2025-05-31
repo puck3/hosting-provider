@@ -3,12 +3,8 @@ services:
     build: ./backend
     container_name: hosting-provider-backend
     env_file:
-      - ./backend/.env
-      - .env
+      - backend/.env
     environment:
-      DB_NAME: ${POSTGRES_DB}
-      DB_USER: ${POSTGRES_USER}
-      DB_PASSWORD: ${POSTGRES_PASSWORD}
       DB_HOST: hosting-provider-db
       DB_PORT: 5432
     ports:

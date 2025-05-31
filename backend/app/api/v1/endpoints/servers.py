@@ -6,7 +6,7 @@ from starlette.status import HTTP_403_FORBIDDEN
 from app.api.v1.schemas.server import ChangeStatus, Country, CreateDatacenter, CreateServer
 from app.dependencies.actor import Actor, get_actor
 from app.dependencies.services_factory import get_services_factory
-from app.models.server import Datacenter, Server, Status
+from app.models.server import Datacenter, Server
 from app.models.user import Role
 from app.services.factory import ServicesFactory
 from app.services.server_service import ServerService
