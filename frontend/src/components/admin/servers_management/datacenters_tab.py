@@ -1,8 +1,8 @@
 import streamlit as st
 
 from src.components.shared.datacenter_card import datacenter_card
-from src.db.connector import get_services_factory
 from src.models.server import Datacenter
+from src.pages.plans import ServicesFactory
 
 
 def create_datacenter_form():
@@ -13,7 +13,7 @@ def create_datacenter_form():
     with col2:
         city = st.text_input("Город")
     if st.button("Добавить датацентр"):
-        services = get_services_factory()
+        services = ServicesFactory()
         server_service = services.get_server_service()
         try:
             server_service.add_datacenter(datacenter_name, country, city)
@@ -34,7 +34,7 @@ def datacenters_table(datacenters: list[Datacenter]):
 
         with col3:
             if st.button("Удалить", key=datacenter.datacenter_name):
-                services = get_services_factory()
+                services = ServicesFactory()
                 server_service = services.get_server_service()
                 try:
                     server_service.delete_datacenter(datacenter.datacenter_id)

@@ -20,7 +20,7 @@ class PlanService:
         price: float,
         billing_period: BillingPeriod,
         plan_name: str,
-        plan_description: str,
+        plan_description: str | None = None,
     ) -> Plan:
         body = {
             "hardware_id": hardware_id,

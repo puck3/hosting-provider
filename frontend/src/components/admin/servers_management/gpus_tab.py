@@ -1,7 +1,7 @@
 import streamlit as st
 
-from src.db.connector import get_services_factory
 from src.models.hardware import GPU
+from src.pages.plans import ServicesFactory
 
 
 def create_gpu_form():
@@ -15,7 +15,7 @@ def create_gpu_form():
         vram_type = st.text_input("Тип видеопамяти")
 
     if st.button("Добавить видеокарту"):
-        services = get_services_factory()
+        services = ServicesFactory()
         hardware_service = services.get_hardware_service()
         try:
             hardware_service.add_gpu(gpu_name, gpu_vendor, vram_type, vram_gb)
@@ -39,7 +39,7 @@ def gpus_table(gpus: list[GPU]):
 
         with col4:
             if st.button("Удалить", key=gpu.gpu_name):
-                services = get_services_factory()
+                services = ServicesFactory()
                 hardware_service = services.get_hardware_service()
                 try:
                     hardware_service.delete_gpu(gpu.gpu_id)

@@ -1,9 +1,9 @@
 import streamlit as st
 
 from src.components.shared.server_card import server_card
-from src.db.connector import get_services_factory
 from src.models.hardware import Hardware
 from src.models.server import Datacenter, Server, Status
+from src.pages.plans import ServicesFactory
 from src.utils.key_id_map import DatacenterKeyIdMap, HardwareKeyIdMap
 
 
@@ -15,9 +15,7 @@ def create_server_form(
     datacenter_mapper = DatacenterKeyIdMap(datacenters)
 
     datacenter_name = st.selectbox("Выберите датацентр", datacenter_mapper.list_keys())
-    hardware_info = st.selectbox(
-        "Выберите конфигурацию сервера", hardware_mapper.list_keys()
-    )
+    hardware_info = st.selectbox("Выберите конфигурацию сервера", hardware_mapper.list_keys())
     col1, col2 = st.columns([3, 1])
     with col1:
         operating_system = st.text_input("Выберите операционную систему")
@@ -26,13 +24,13 @@ def create_server_form(
         status = st.selectbox("Выберите статус сервера", [e.value for e in Status])
 
     if st.button("Добавить сервер"):
-        services = get_services_factory()
+        services = ServicesFactory()
         server_service = services.get_server_service()
         try:
             server_service.create_server(
                 datacenter_id=datacenter_mapper.get(datacenter_name),
                 hardware_id=hardware_mapper.get(hardware_info),
-                status=status,
+                status=Status(status),
                 operating_system=operating_system,
             )
             st.rerun()
@@ -55,20 +53,20 @@ def servers_table(servers: list[Server]):
                 "Изменить статус",
                 [e.value for e in Status],
                 index=list(Status).index(server.status),
-                key=(server.server_id, server.status),
+                key=f"{server.server_id}:{server.status}",
                 label_visibility="collapsed",
             )
             if new_status != server.status:
-                services = get_services_factory()
+                services = ServicesFactory()
                 server_service = services.get_server_service()
                 try:
-                    server_service.change_server_status(server.server_id, new_status)
+                    server_service.change_server_status(server.server_id, Status(new_status))
                     st.rerun()
                 except ValueError as e:
                     st.error(str(e))
 
             if st.button("Удалить", key=server.server_id):
-                services = get_services_factory()
+                services = ServicesFactory()
                 server_service = services.get_server_service()
                 try:
                     server_service.delete_server(server.server_id)
@@ -80,7 +78,7 @@ def servers_table(servers: list[Server]):
 
 
 def change_status_buttons():
-    services = get_services_factory()
+    services = ServicesFactory()
     server_service = services.get_server_service()
     col1, col2 = st.columns([1, 1])
     with col1:

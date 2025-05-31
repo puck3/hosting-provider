@@ -1,7 +1,8 @@
 import streamlit as st
 
 from src.components.public.user_profile import edit_profile_form, show_profile
-from src.db.connector import get_services_factory
+from src.utils.app_session import AppSession
+from src.services.services_factory import ServicesFactory
 
 
 def show_profile_page():
@@ -15,7 +16,7 @@ def show_profile_page():
     tabs = st.tabs(["Информация о пользователе", "Редактировать профиль"])
 
     with tabs[0]:
-        services = get_services_factory()
+        services = ServicesFactory()
         user_service = services.get_user_service()
         user = user_service.get_user_by_id(user_id)
         if not user:
@@ -30,8 +31,7 @@ def show_profile_page():
         if st.button("Удалить аккаунт"):
             try:
                 user_service.delete_user(user_id, password)
-                del st.session_state["user_id"]
-                del st.session_state["role"]
+                AppSession.clear()
                 st.rerun()
             except ValueError as e:
                 st.error(str(e))

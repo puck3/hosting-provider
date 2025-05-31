@@ -9,8 +9,8 @@ class KeyIdMap:
     def list_keys(self) -> list[str]:
         return list(self.map.keys())
 
-    def get(self, key: str) -> int | None:
-        return self.map.get(key)
+    def get(self, key: str) -> int:
+        return self.map[key]
 
 
 class CPUKeyIdMap(KeyIdMap):
@@ -25,14 +25,9 @@ class GPUKeyIdMap(KeyIdMap):
 
 class HardwareKeyIdMap(KeyIdMap):
     def __init__(self, hardwares: list[Hardware]) -> None:
-        self.map = {
-            get_hardware_info(hardware): hardware.hardware_id for hardware in hardwares
-        }
+        self.map = {get_hardware_info(hardware): hardware.hardware_id for hardware in hardwares}
 
 
 class DatacenterKeyIdMap(KeyIdMap):
     def __init__(self, datacenters: list[Datacenter]) -> None:
-        self.map = {
-            datacenter.datacenter_name: datacenter.datacenter_id
-            for datacenter in datacenters
-        }
+        self.map = {datacenter.datacenter_name: datacenter.datacenter_id for datacenter in datacenters}

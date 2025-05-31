@@ -77,9 +77,3 @@ class Client:
     def _store_tokens(self, tokens: dict) -> None:
         st.session_state["access_token"] = tokens["access_token"]
         st.session_state["refresh_token"] = tokens["refresh_token"]
-
-    def logout(self) -> None:
-        st.session_state.pop("access_token", None)
-        st.session_state.pop("refresh_token", None)
-        st.session_state.pop("user_id", None)
-        st.session_state.pop("role", None)

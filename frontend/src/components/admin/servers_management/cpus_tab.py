@@ -1,7 +1,7 @@
 import streamlit as st
 
-from src.db.connector import get_services_factory
 from src.models.hardware import CPU
+from src.pages.plans import ServicesFactory
 
 
 def create_cpu_form():
@@ -15,7 +15,7 @@ def create_cpu_form():
         cores = st.number_input("Количество ядер", min_value=1)
 
     if st.button("Добавить процессор"):
-        services = get_services_factory()
+        services = ServicesFactory()
         hardware_service = services.get_hardware_service()
         try:
             hardware_service.add_cpu(cpu_name, cpu_vendor, cores, frequency)
@@ -39,7 +39,7 @@ def cpus_table(cpus: list[CPU]):
 
         with col4:
             if st.button("Удалить", key=cpu.cpu_name):
-                services = get_services_factory()
+                services = ServicesFactory()
                 hardware_service = services.get_hardware_service()
                 try:
                     hardware_service.delete_cpu(cpu.cpu_id)

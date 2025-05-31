@@ -1,7 +1,7 @@
 import streamlit as st
 
-from src.db.connector import get_services_factory
 from src.models.user import User
+from src.services.services_factory import ServicesFactory
 
 
 def show_profile(user: User):
@@ -32,20 +32,18 @@ def edit_profile_form():
         password = st.text_input("Введите пароль*", type="password")
 
     if st.button("Сохранить изменения"):
-        services = get_services_factory()
+        services = ServicesFactory()
         user_service = services.get_user_service()
         user_id = st.session_state["user_id"]
         try:
             if new_email:
-                user_service.change_user_email(user_id, password, new_email)
+                user_service.change_user_email(password, new_email)
             if new_login:
-                user_service.change_user_login(user_id, password, new_login)
+                user_service.change_user_login(password, new_login)
             if new_password:
-                user_service.change_user_password(user_id, password, new_password)
+                user_service.change_user_password(password, new_password)
             if new_first_name or new_last_name or new_birthdate:
-                user_service.change_user_personal(
-                    user_id, new_first_name, new_last_name, new_birthdate
-                )
+                user_service.change_user_personal(user_id, new_first_name, new_last_name, new_birthdate)
             st.rerun()
         except ValueError as e:
             st.error(str(e))

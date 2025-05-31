@@ -2,11 +2,11 @@ from datetime import datetime
 import streamlit as st
 
 from src.components.public.rentals_table import manage_rentals_table, rentals_table
-from src.db.connector import get_services_factory
+from src.services.services_factory import ServicesFactory
 
 
 def show_rentals():
-    services_factory = get_services_factory()
+    services_factory = ServicesFactory()
     rental_service = services_factory.get_rental_service()
 
     user_id = st.session_state["user_id"]

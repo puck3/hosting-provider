@@ -2,18 +2,18 @@ import streamlit as st
 
 from src.components.admin.rentals_management import show_user_rentals
 from src.components.shared.user_card import user_card
-from src.db.connector import get_services_factory
 from src.models.user import Role, User
+from src.services.services_factory import ServicesFactory
 
 
 def change_user_role_form():
     email = st.text_input("Введите email пользователя")
     role = st.selectbox("Выберите роль", [e.value for e in Role])
     if st.button("Изменить роль"):
-        services = get_services_factory()
+        services = ServicesFactory()
         user_service = services.get_user_service()
         try:
-            user_service.change_user_role_by_email(email, role)
+            user_service.change_user_role_by_email(email, Role(role))
             st.rerun()
         except ValueError as e:
             st.error(str(e))
@@ -45,7 +45,7 @@ def users_table(users: list[User]):
                 st.rerun()
 
         if key in st.session_state:
-            services = get_services_factory()
+            services = ServicesFactory()
             rental_service = services.get_rental_service()
             user_rentals = rental_service.get_rentals_by_user(user.user_id)
             if user_rentals:

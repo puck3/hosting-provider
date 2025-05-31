@@ -1,7 +1,7 @@
 from datetime import date
 
 from src.models.user import Role, User
-from src.utils.auth_client import Client
+from src.utils.client import Client
 
 
 class UserService:
@@ -41,7 +41,7 @@ class UserService:
             "last_name": last_name,
             "birthdate": birthdate,
         }
-        response = self.client.protected_request("POST", "/users", json=body)
+        response = self.client.request("POST", "/users", json=body)
         user = User.model_validate(response)
         return user
 
@@ -61,7 +61,7 @@ class UserService:
 
     def change_user_role_by_email(self, email: str, role: Role) -> None:
         body = {"role": role.value}
-        self.client.protected_request("PATCH", f"/users/email/{email}", json=body)
+        self.client.protected_request("PATCH", f"/users/role/{email}", json=body)
 
     def change_user_password(self, old_password: str, new_password: str) -> None:
         body = {"old_password": old_password, "new_password": new_password}
