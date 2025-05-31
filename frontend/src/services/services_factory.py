@@ -3,7 +3,7 @@ from src.services.plan_service import PlanService
 from src.services.rental_service import RentalService
 from src.services.server_service import ServerService
 from src.services.user_service import UserService
-from src.utils.auth_client import Client
+from src.utils.client import Client
 
 
 class ServicesFactory:

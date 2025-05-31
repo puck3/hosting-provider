@@ -1,5 +1,5 @@
 from src.models.rental import Rental
-from src.utils.auth_client import Client
+from src.utils.client import Client
 
 
 class RentalService:

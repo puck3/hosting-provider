@@ -1,5 +1,5 @@
 from src.models.hardware import CPU, GPU, Hardware
-from src.utils.auth_client import Client
+from src.utils.client import Client
 
 
 class HardwareService:

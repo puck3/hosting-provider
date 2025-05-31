@@ -1,5 +1,5 @@
 from src.models.server import Datacenter, Server, Status
-from src.utils.auth_client import Client
+from src.utils.client import Client
 
 
 class ServerService:
