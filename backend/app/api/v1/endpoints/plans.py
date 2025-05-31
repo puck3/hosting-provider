@@ -28,7 +28,7 @@ async def get_available_plans_by_country(
 ) -> list[Plan]:
     try:
         plan_service = services.get_plan_service()
-        return plan_service.get_available_plans_by_country(country)
+        return await plan_service.get_available_plans_by_country(country)
     except ValueError as e:
         raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e)) from e
 

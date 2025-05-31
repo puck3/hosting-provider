@@ -1,3 +1,4 @@
+import asyncio
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -6,11 +7,16 @@ from uvicorn import run
 
 from app.api.v1.endpoints import router as router_v1
 from app.db.connector import close_connection_pool, initialize_connection
+from app.utils.logger import logger
+from app.worker import rental_activation_worker, server_setup_worker
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     initialize_connection()
+    asyncio.create_task(server_setup_worker())
+    asyncio.create_task(rental_activation_worker())
+    logger.info("Background workers started")
     yield
     close_connection_pool()
 

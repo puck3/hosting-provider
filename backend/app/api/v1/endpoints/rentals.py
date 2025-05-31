@@ -47,7 +47,7 @@ async def create_rental(
     rental_service: Annotated[RentalService, Depends(get_rental_service)],
     actor: Annotated[Actor, Depends(get_actor)],
 ) -> Rental:
-    return rental_service.create_rental(actor.user_id, **rental.model_dump())
+    return await rental_service.create_rental(actor.user_id, **rental.model_dump())
 
 
 @router.patch("/{rental_id}")

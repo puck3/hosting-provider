@@ -40,7 +40,7 @@ async def create_server(
     actor: Annotated[Actor, Depends(get_actor)],
 ) -> Server:
     assert_is_admin(actor, "Only admin can create server.")
-    return server_service.create_server(**server.model_dump())
+    return await server_service.create_server(**server.model_dump())
 
 
 @servers_router.delete("/{server_id}")

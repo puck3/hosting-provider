@@ -30,7 +30,7 @@ async def login_user(
     auth: Annotated[AuthService, Depends(get_auth_service)],
 ) -> Token:
     try:
-        tokens = auth.login_user(form_data.username, form_data.password)
+        tokens = await auth.login_user(form_data.username, form_data.password)
     except ValueError as e:
         raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e)) from e
 
@@ -43,7 +43,7 @@ async def refresh_token(
     refresh_token: str = Form(...),
 ) -> Token:
     try:
-        tokens = auth.refresh_tokens(refresh_token)
+        tokens = await auth.refresh_tokens(refresh_token)
     except ValueError as e:
         raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e)) from e
 
@@ -57,7 +57,7 @@ async def change_user_password(
     password: ChangePassword,
 ) -> Token:
     try:
-        tokens = auth.change_user_password(refresh_token, **password.model_dump())
+        tokens = await auth.change_user_password(refresh_token, **password.model_dump())
     except ValueError as e:
         raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e)) from e
 
@@ -71,7 +71,7 @@ async def change_user_email(
     email: ChangeEmail,
 ) -> Token:
     try:
-        tokens = auth.change_user_email(refresh_token, **email.model_dump())
+        tokens = await auth.change_user_email(refresh_token, **email.model_dump())
     except ValueError as e:
         raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e)) from e
 
@@ -85,7 +85,7 @@ async def change_user_login(
     login: ChangeLogin,
 ) -> Token:
     try:
-        tokens = auth.change_user_login(refresh_token, **login.model_dump())
+        tokens = await auth.change_user_login(refresh_token, **login.model_dump())
     except ValueError as e:
         raise HTTPException(HTTP_401_UNAUTHORIZED, detail=str(e)) from e
 
