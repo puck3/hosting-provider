@@ -44,4 +44,5 @@ jobs:
           username: ${{ secrets.VDS_USER }}
           key: ${{ secrets.VDS_SSH_KEY }}
           script: |
+            export KUBECONFIG=$HOME/.kube/config
             kubectl apply -f ~/hosting-provider/k8s/
