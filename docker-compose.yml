@@ -1,0 +1,64 @@
+services:
+  backend:
+    build: ./backend
+    container_name: hosting-provider-backend
+    env_file:
+      - backend/.env
+    environment:
+      DB_HOST: hosting-provider-db
+      DB_PORT: 5432
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+      - redis
+    volumes:
+      - ./backend/tests:/app/tests
+    networks:
+      - hosting-provider-network
+
+  frontend:
+    build: ./frontend
+    container_name: hosting-provider-frontend
+    ports:
+      - "8501:8501"
+    depends_on:
+      - backend
+    environment:
+      BACKEND_HOST: hosting-provider-backend
+      BACKEND_PORT: 8000
+    networks:
+      - hosting-provider-network
+
+  db:
+    image: postgres:17
+    container_name: hosting-provider-db
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    networks:
+      - hosting-provider-network
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    restart: unless-stopped
+    env_file:
+      - .env
+    command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
+    networks:
+      - hosting-provider-network
+
+volumes:
+  db-data:
+
+
+networks:
+  hosting-provider-network:
+    driver: bridge

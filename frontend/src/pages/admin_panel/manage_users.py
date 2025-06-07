@@ -2,18 +2,16 @@ import streamlit as st
 
 from src.components.admin.rentals_management import admin_rentals_table
 from src.components.admin.users_management import manage_users_tab
-from src.db.connector import get_services_factory
+from src.services.services_factory import ServicesFactory
 
 
 def manage_users():
-    services_factory = get_services_factory()
+    services_factory = ServicesFactory()
     user_service = services_factory.get_user_service()
     rental_service = services_factory.get_rental_service()
 
     st.subheader("Управление пользователями и арендой")
-    users_tab, rentals_tab = st.tabs(
-        ["Управление пользователями", "Управление арендой"]
-    )
+    users_tab, rentals_tab = st.tabs(["Управление пользователями", "Управление арендой"])
 
     with users_tab:
         users = user_service.get_users()

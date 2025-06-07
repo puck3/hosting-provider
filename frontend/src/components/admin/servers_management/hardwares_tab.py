@@ -1,8 +1,8 @@
 import streamlit as st
 
 from src.components.shared.hardware_card import hardware_card
-from src.db.connector import get_services_factory
 from src.models.hardware import CPU, GPU, Hardware
+from src.services.services_factory import ServicesFactory
 from src.utils.key_id_map import CPUKeyIdMap, GPUKeyIdMap
 
 
@@ -33,13 +33,13 @@ def create_hardware_form(cpus: list[CPU], gpus: list[GPU]):
         bandwidth_gbps = st.number_input("Сеть (Гбит/c)", min_value=1)
 
     if st.button("Добавить конфигурацию"):
-        services = get_services_factory()
+        services = ServicesFactory()
         hardware_service = services.get_hardware_service()
         try:
             hardware_service.create_hardware(
                 cpu_id=cpu_mapper.get(cpu_name),
                 cpus_count=cpus_count,
-                gpu_id=gpu_mapper.get(gpu_name),
+                gpu_id=gpu_mapper.get(gpu_name) if gpu_name else None,
                 gpus_count=gpus_count,
                 storage_tb=storage_tb,
                 ram_gb=ram_gb,
@@ -61,10 +61,8 @@ def hardwares_table(hardwares: list[Hardware]):
             hardware_card(hardware)
 
         with col3:
-            if st.button(
-                "Удалить", key=f"{hardware.hardware_id}{hardware.cpu.cpu_name}"
-            ):
-                services = get_services_factory()
+            if st.button("Удалить", key=f"{hardware.hardware_id}{hardware.cpu.cpu_name}"):
+                services = ServicesFactory()
                 hardware_service = services.get_hardware_service()
                 try:
                     hardware_service.delete_hardware(hardware.hardware_id)

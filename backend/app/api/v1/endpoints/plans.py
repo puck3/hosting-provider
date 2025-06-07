@@ -17,11 +17,8 @@ router = APIRouter(prefix="/plans", tags=["Plans"])
 async def get_plans(
     services: Annotated[ServicesFactory, Depends(get_services_factory)],
 ) -> list[Plan]:
-    try:
-        plan_service = services.get_plan_service()
-        return plan_service.get_plans()
-    except ValueError as e:
-        raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e)) from e
+    plan_service = services.get_plan_service()
+    return plan_service.get_plans()
 
 
 @router.get("/available/{country}")
@@ -31,7 +28,7 @@ async def get_available_plans_by_country(
 ) -> list[Plan]:
     try:
         plan_service = services.get_plan_service()
-        return plan_service.get_available_plans_by_country(country)
+        return await plan_service.get_available_plans_by_country(country)
     except ValueError as e:
         raise HTTPException(HTTP_400_BAD_REQUEST, detail=str(e)) from e
 

@@ -7,11 +7,11 @@ from src.components.admin.servers_management.datacenters_tab import (
 from src.components.admin.servers_management.gpus_tab import manage_gpus_tab
 from src.components.admin.servers_management.hardwares_tab import manage_hardwares_tab
 from src.components.admin.servers_management.servers_tab import manage_servers_tab
-from src.db.connector import get_services_factory
+from src.services.services_factory import ServicesFactory
 
 
 def manage_servers():
-    services_factory = get_services_factory()
+    services_factory = ServicesFactory()
 
     hardware_service = services_factory.get_hardware_service()
     cpus = hardware_service.get_cpus()

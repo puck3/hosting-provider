@@ -1,11 +1,11 @@
 import streamlit as st
 
 from src.components.admin.plans_management import admin_plans_table, create_plan_form
-from src.db.connector import get_services_factory
+from src.services.services_factory import ServicesFactory
 
 
 def manage_plans():
-    services_factory = get_services_factory()
+    services_factory = ServicesFactory()
 
     hardware_service = services_factory.get_hardware_service()
     hardwares = hardware_service.get_hardwares()

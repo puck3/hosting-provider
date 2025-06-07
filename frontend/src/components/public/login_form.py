@@ -1,16 +1,17 @@
 import streamlit as st
-
-from src.db.connector import get_services_factory
+from src.services.services_factory import ServicesFactory
+from src.utils.client import Client
 
 
 def login_form():
     login = st.text_input("Логин", key="login_input")
     password = st.text_input("Пароль", type="password", key="password_input")
     if st.button("Войти"):
-        services_factory = get_services_factory()
-        user_service = services_factory.get_user_service()
+        client = Client()
+        user_service = ServicesFactory.get_user_service()
         try:
-            user = user_service.login_user(login, password)
+            client.login(login, password)
+            user = user_service.get_self()
             st.success("Авторизация успешна!")
             st.session_state["user_id"] = user.user_id
             st.session_state["role"] = user.role

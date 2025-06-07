@@ -1,6 +1,8 @@
 import streamlit as st
 
-from src.db.connector import get_services_factory
+
+from src.services.services_factory import ServicesFactory
+from src.utils.client import Client
 
 
 def registration_form():
@@ -12,12 +14,12 @@ def registration_form():
     birthdate = st.date_input("Дата рождения", value=None)
 
     if st.button("Зарегистрироваться"):
-        services_factory = get_services_factory()
+        services_factory = ServicesFactory()
         user_service = services_factory.get_user_service()
+        client = Client()
         try:
-            user = user_service.register_user(
-                email, login, password, first_name, last_name, birthdate
-            )
+            user = user_service.create_user(email, login, password, first_name, last_name, birthdate)
+            client.login(login, password)
             st.success("Регистрация успешна!")
             st.session_state["user_id"] = user.user_id
             st.session_state["role"] = user.role

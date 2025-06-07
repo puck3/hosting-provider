@@ -1,9 +1,9 @@
 import streamlit as st
 
 from src.components.shared.plan_card import plan_card
-from src.db.connector import get_services_factory
 from src.models.hardware import Hardware
 from src.models.plan import BillingPeriod, Plan
+from src.services.services_factory import ServicesFactory
 from src.utils.key_id_map import HardwareKeyIdMap
 
 
@@ -12,28 +12,27 @@ def create_plan_form(hardwares: list[Hardware]):
 
     plan_name = st.text_input("Введите название тарифа")
 
-    hardware_info = st.selectbox(
-        "Выберите конфигурацию серверов", hardware_mapper.list_keys()
-    )
+    hardware_info = st.selectbox("Выберите конфигурацию серверов", hardware_mapper.list_keys())
 
     col1, col2 = st.columns([2, 1])
     with col1:
         price = st.number_input("Введите цену", min_value=1.0)
 
     with col2:
-        billing_period = st.selectbox(
-            "Выберите срок аренды", [e.value for e in BillingPeriod]
-        )
+        billing_period = st.selectbox("Выберите срок аренды", [e.value for e in BillingPeriod])
+
+    plan_description = st.text_area("Введите описание тарифа")
 
     if st.button("Добавить тариф"):
-        services = get_services_factory()
+        services = ServicesFactory()
         plan_service = services.get_plan_service()
         try:
             plan_service.add_plan(
                 hardware_id=hardware_mapper.get(hardware_info),
                 price=price,
-                billing_period=billing_period,
+                billing_period=BillingPeriod(billing_period),
                 plan_name=plan_name,
+                plan_description=plan_description,
             )
             st.rerun()
         except ValueError as e:
@@ -52,7 +51,7 @@ def admin_plans_table(plans: list[Plan]):
 
         with col3:
             if st.button("Удалить", key=f"delete_{plan.plan_name}"):
-                services = get_services_factory()
+                services = ServicesFactory()
                 plan_service = services.get_plan_service()
                 try:
                     plan_service.delete_plan(plan.plan_id)

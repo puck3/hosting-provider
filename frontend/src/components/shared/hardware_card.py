@@ -4,21 +4,14 @@ from src.models.hardware import Hardware
 
 
 def cpu_column(hardware: Hardware):
-    st.write(
-        f"{hardware.cpus_count}x {hardware.cpu.cpu_vendor} {hardware.cpu.cpu_name}"
-    )
-    st.write(
-        f"{hardware.cpu.frequency} ГГц, {hardware.cpu.cores * hardware.cpus_count} ядер"
-    )
+    st.write(f"{hardware.cpus_count}x {hardware.cpu.cpu_vendor} {hardware.cpu.cpu_name}")
+    st.write(f"{hardware.cpu.frequency} ГГц, {hardware.cpu.cores * hardware.cpus_count} ядер")
 
 
 def gpu_column(hardware: Hardware):
-    st.write(
-        f"{hardware.gpus_count}x {hardware.gpu.gpu_vendor} {hardware.gpu.gpu_name}"
-    )
-    st.write(
-        f"{hardware.gpu.vram_gb * hardware.gpus_count} ГБ {hardware.gpu.vram_type}"
-    )
+    assert hardware.gpu is not None
+    st.write(f"{hardware.gpus_count}x {hardware.gpu.gpu_vendor} {hardware.gpu.gpu_name}")
+    st.write(f"{hardware.gpu.vram_gb * hardware.gpus_count} ГБ {hardware.gpu.vram_type}")
 
 
 def memory_column(hardware: Hardware):

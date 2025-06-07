@@ -14,3 +14,11 @@ class CreateDatacenter(BaseModel):
     datacenter_name: str
     country: str
     city: str
+
+
+class Country(BaseModel):
+    country_name: str
+
+
+class ChangeStatus(BaseModel):
+    status: Status
