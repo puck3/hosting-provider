@@ -45,4 +45,4 @@ jobs:
           key: ${{ secrets.VDS_SSH_KEY }}
           script: |
             export KUBECONFIG=$HOME/.kube/config
-            kubectl apply -f ~/hosting-provider/k8s/
+            kubectl apply -f ~/hosting-provider/k8s/ -R
