@@ -1,0 +1,47 @@
+name: Deploy to Kubernetes
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Log in to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u puck3 --password-stdin
+
+      - name: Build backend image
+        run: docker build -t puck3/hosting-provider-backend:latest ./backend
+
+      - name: Build frontend image
+        run: docker build -t puck3/hosting-provider-frontend:latest ./frontend
+
+      - name: Push backend image
+        run: docker push puck3/hosting-provider-backend:latest
+
+      - name: Push frontend image
+        run: docker push puck3/hosting-provider-frontend:latest
+
+      - name: Upload manifests
+        uses: appleboy/scp-action@master
+        with:
+          host: ${{ secrets.VDS_HOST }}
+          username: ${{ secrets.VDS_USER }}
+          key: ${{ secrets.VDS_SSH_KEY }}
+          source: "k8s/*"
+          target: "~/hosting-provider/k8s/"
+
+      - name: Deploy via SSH
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.VDS_HOST }}
+          username: ${{ secrets.VDS_USER }}
+          key: ${{ secrets.VDS_SSH_KEY }}
+          script: |
+            kubectl apply -f ~/hosting-provider/k8s/
