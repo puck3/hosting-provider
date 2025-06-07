@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backend
+  template:
+    metadata:
+      labels:
+        app: backend
+    spec:
+      containers:
+        - name: backend
+          image: puck3/hosting-provider-backend
+          ports:
+            - containerPort: 8000
+          env:
+            - name: ACCESS_TOKEN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: ACCESS_TOKEN_SECRET
+            - name: REFRESH_TOKEN_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: REFRESH_TOKEN_SECRET
+            - name: ACCESS_TOKEN_EXPIRE
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: ACCESS_TOKEN_EXPIRE
+            - name: REFRESH_TOKEN_EXPIRE
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: REFRESH_TOKEN_EXPIRE
+            - name: ALGORITHM
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: ALGORITHM
+            - name: DB_NAME
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: DB_NAME
+            - name: DB_USER
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: DB_PASSWORD
+            - name: DB_HOST
+              value: postgres
+            - name: DB_PORT
+              value: "5432"
+            - name: REDIS_HOST
+              value: redis
+            - name: REDIS_PORT
+              value: "6379"
+            - name: REDIS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backend-secret
+                  key: REDIS_PASSWORD

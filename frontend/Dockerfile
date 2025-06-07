@@ -1,7 +1,7 @@
 FROM ghcr.io/astral-sh/uv:python3.13-alpine
 
 RUN apk update && \
-    apk add --no-cache bash build-base libpq-dev
+    apk add --no-cache bash build-base
 
 WORKDIR /app
 
